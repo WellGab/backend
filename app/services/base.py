@@ -5,11 +5,17 @@ from typing import (
     Optional,
 )
 
-class BaseService():
+class DBMixin:
+    """Provides instance of database."""
+
+    def __init__(self, db: Any) -> None:
+        self.db = db
+
+class BaseService(DBMixin):
     """Base class for application services."""
 
 
-class BaseDataManager():
+class BaseDataManager(DBMixin):
     """Base data manager class responsible for operations over database."""
 
     def add_one(self, model: Any) -> Optional[bool]:

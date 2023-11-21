@@ -9,7 +9,7 @@ class HashingMixin:
     @staticmethod
     def bcrypt(password: str) -> str:
         """Generate a bcrypt hashed password."""
-        
+
         return password
 
     @staticmethod
@@ -24,7 +24,7 @@ class AuthService(HashingMixin, BaseService):
     def create_user(self) -> None:
         """Add user with hashed password to database."""
 
-        AuthDataManager(self.session).add_user()
+        AuthDataManager(self.db).add_user()
 
     def login_user(self) -> None:
         """Verifies login credentials and returns access token."""
