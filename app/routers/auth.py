@@ -8,9 +8,9 @@ from ..utils.database import create_db
 router = APIRouter(prefix="/auth", tags=['Authentication'])
 
 @router.post("/login", response_model=auth_schema.LoginResponse)
-def login(res: Response, db = Depends(create_db)):
+def login(res: Response, db = create_db):
     res.status_code = status.HTTP_200_OK
-    user = auth_service.AuthService(db).login_user()
+    user = auth_service.AuthService(create_db).login_user()
 
     return {
             "message": "login successful",

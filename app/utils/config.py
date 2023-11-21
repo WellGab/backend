@@ -3,6 +3,7 @@ from pydantic_settings import (
     BaseSettings,
     SettingsConfigDict,
 )
+from .const import SECRET_KEY, MONGO_URI, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 class DatabaseConfig(BaseModel):
     """Backend database configuration parameters.
@@ -12,7 +13,7 @@ class DatabaseConfig(BaseModel):
             DSN for target database.
     """
 
-    dsn: str = ""
+    dsn: str = MONGO_URI
 
 class Config(BaseSettings):
     """API configuration parameters.
@@ -33,9 +34,9 @@ class Config(BaseSettings):
     """
 
     database: DatabaseConfig = DatabaseConfig()
-    secret_key: str
-    algorithm: str
-    access_token_expiry: int
+    secret_key: str = SECRET_KEY
+    algorithm: str = ALGORITHM
+    access_token_expiry: int = ACCESS_TOKEN_EXPIRE_MINUTES
 
     model_config = SettingsConfigDict(
         env_file=".env",

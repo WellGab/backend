@@ -2,6 +2,10 @@ from .base import (
     BaseService,
     BaseDataManager
 )
+from passlib.context import CryptContext
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class HashingMixin:
     """Hashing and verifying passwords."""
@@ -9,14 +13,13 @@ class HashingMixin:
     @staticmethod
     def bcrypt(password: str) -> str:
         """Generate a bcrypt hashed password."""
-
-        return password
+        return pwd_context.hash(password)
 
     @staticmethod
     def verify(hashed_password: str, plain_password: str) -> bool:
         """Verify a password against a hash."""
 
-        return False
+        return pwd_context.verify(plain_password, hashed_password)
 
 class AuthService(HashingMixin, BaseService):
     """Authentication service."""

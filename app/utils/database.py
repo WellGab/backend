@@ -1,7 +1,7 @@
-import motor.motor_asyncio
+from pymongo import MongoClient
 from .config import config
 
 def create_db():
-        client = motor.motor_asyncio.AsyncIOMotorClient(config.database.dsn)
-        db = client.wellgab
+        conn = MongoClient(config.database.dsn)
+        db = conn.wellgab
         return db
