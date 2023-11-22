@@ -4,12 +4,15 @@ from typing import (
     Sequence,
     Optional,
 )
-from app.utils.database import db
+from app.utils.setup import db
+
+
 class DBMixin:
     """Provides instance of database."""
 
     def __init__(self) -> None:
         self.db = db
+
 
 class BaseService(DBMixin):
     """Base class for application services."""
