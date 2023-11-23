@@ -1,12 +1,10 @@
+from app.version import __version__
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import models
 from .routers import auth
 
 app = FastAPI()
-
-from app.version import __version__
 
 
 app = FastAPI(
@@ -27,7 +25,7 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@ app.get("/")
 async def root():
     return {"message": "WellGab"}
 

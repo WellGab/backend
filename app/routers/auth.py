@@ -1,18 +1,17 @@
-from fastapi import Response, status, Depends, APIRouter
+from fastapi import Response, status, Depends, APIRouter, HTTPException
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 
 from ..schemas import auth as auth_schema
-from ..services import auth as auth_service
+from ..controllers import auth as auth_controller
 
 router = APIRouter(prefix="/auth", tags=['Authentication'])
 
-@router.post("/login", response_model=auth_schema.LoginResponse)
-def login(res: Response):
-    res.status_code = status.HTTP_200_OK
-    user = auth_service.AuthService().login_user()
 
-    return {
-            "message": "login successful",
-            "status_code": str(status.HTTP_200_OK),
-            "data": user
-           }
+@router.post("/sign-up/", response_model=auth_schema.SignUpResponse)
+async def signup(user_data: auth_schema.SignUpSchema):
+    return auth_controller.AuthController.sign_up(user_data)
+
+
+@router.post("/login", response_model=auth_schema.LoginResponse)
+def login(user_data: auth_schema.LoginSchema):
+    return auth_controller.AuthController.login_in(user_data)

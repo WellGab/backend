@@ -1,6 +1,10 @@
 from .config import Configuration
 from .mongodb import Mongodb
+from .token import Token
 
 config = Configuration()
-conn = Mongodb(config.MONGO_URI, "wellgab")
-db = conn.get_db()
+mongo = Mongodb(f'{config.MONGO_URI}{config.DB_NAME}', config.DB_NAME)
+conn = mongo.get_conn()
+db = mongo.get_db()
+
+token = Token(config)
