@@ -1,6 +1,3 @@
-from pymongo import MongoClient
-
-
 class MongoDBActions:
     def __init__(self, collection_name, db):
         self.db = db

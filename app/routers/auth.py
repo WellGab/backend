@@ -24,7 +24,7 @@ async def signup(user_data: auth_schema.CreateUser):
 
     # Return the created user document
     return {
-        "id": new_user,
+        "id": str(new_user),
     }
 
 
