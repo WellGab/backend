@@ -1,3 +1,5 @@
+
+from app.utils.setup import db
 from typing import (
     Any,
     List,
@@ -10,6 +12,7 @@ class DBMixin:
 
     def __init__(self, db) -> None:
         self.db = db
+
 
 class BaseService(DBMixin):
     """Base class for application services."""
