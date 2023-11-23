@@ -3,8 +3,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import auth
-from .models import user as us
-from .models import base
 
 app = FastAPI()
 

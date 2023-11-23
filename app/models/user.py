@@ -1,5 +1,4 @@
 from mongoengine import *
-from .base import BaseModel
 
 
 class User(Document):
