@@ -10,6 +10,7 @@ class Configuration():
     def _get_env_vars(self):
         load_dotenv()
         self.MONGO_URI = os.getenv('MONGO_URI')
+        self.DB_NAME = os.getenv('DB_NAME')
         self.REDIS_URL = os.getenv('REDIS_URL')
         self.SECRET_KEY = os.getenv('SECRET_KEY')
         self.ALGORITHM = os.getenv('ALGORITHM')

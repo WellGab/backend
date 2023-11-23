@@ -1,31 +1,11 @@
-import os
-from typing import Optional
-
-from pydantic import ConfigDict, BaseModel, Field, EmailStr
-from pydantic.functional_validators import BeforeValidator
-
-from typing_extensions import Annotated
-
-PyObjectId = Annotated[str, BeforeValidator(str)]
+from .base import BaseModel
+from .fields import StringField, EmailField, UUIDField
+import uuid
 
 
-class UserModel(BaseModel):
-    """
-    Container for a single user record.
-    """
-
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    name: str = Field(...)
-    email: EmailStr = Field(...)
-    password_hash: str = Field(...)
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_schema_extra={
-            "example": {
-                "name": "King Hill",
-                "email": "kinghill@wellgab.com",
-                "password_hash": "@ahdfbajlksl;;lkej",
-            }
-        },
-    )
+class User(BaseModel):
+    _id = StringField(required=False)
+    firstname = StringField(required=False)
+    lastname = StringField(required=False)
+    email = EmailField(unique=True, required=False)
+    password = StringField(required=False)

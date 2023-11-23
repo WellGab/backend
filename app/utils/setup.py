@@ -2,5 +2,6 @@ from .config import Configuration
 from .mongodb import Mongodb
 
 config = Configuration()
-conn = Mongodb(config.MONGO_URI, "wellgab")
-db = conn.get_db()
+mongo = Mongodb(config.MONGO_URI, config.DB_NAME)
+conn = mongo.get_conn()
+db = mongo.get_db()
