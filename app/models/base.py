@@ -1,9 +1,10 @@
 import inflect
 from .fields import BaseField
-from ..utils import db_helpers, setup
+from mongoengine import *
+from ..utils import setup
 
 
-class BaseModel(db_helpers.MongoDBActions):
+class BaseModel(Document):
     def __init__(self, **kwargs):
         for field_name, field in vars(self.__class__).items():
             if isinstance(field, BaseField):
@@ -15,7 +16,7 @@ class BaseModel(db_helpers.MongoDBActions):
         # Validate all fields after initialization
         self.validate()
 
-        super().__init__(self.get_model_name(), setup.db)
+        # super().__init__(self.get_model_name(), setup.db)
 
     def validate_field(self, field_name):
         field = getattr(self.__class__, field_name)
