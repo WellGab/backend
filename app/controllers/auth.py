@@ -2,14 +2,12 @@ from fastapi import status, HTTPException
 from ..schemas import auth as auth_schema
 from ..services import auth as auth_service
 from ..services import user as user_service
-from ..models.user import (User, AUTH_CHANNEL_DEFAULT, AUTH_CHANNEL_GOOGLE, AUTH_CHANNEL_APPLE, AUTH_CHANNEL_MICROSOFT)
+from ..models.user import (Users, AUTH_CHANNEL_DEFAULT, AUTH_CHANNEL_GOOGLE, AUTH_CHANNEL_APPLE, AUTH_CHANNEL_MICROSOFT)
 
 
 class AuthController:
     """Authentication Controller."""
-
-    # def __init__(self) -> None:
-    # self.db = db
+    
     @staticmethod
     def sign_up(user_data: auth_schema.SignUpSchema) -> auth_schema.AuthResponse:
         """Add user with hashed password to database."""
@@ -36,7 +34,7 @@ class AuthController:
     @staticmethod
     def login_in(user_data: auth_schema.LoginSchema) -> auth_schema.AuthResponse:
         """Verifies login credentials and returns access token."""
-        user: User = user_service.UserService.get_user(user_data.email)
+        user: Users = user_service.UserService.get_user(user_data.email)
 
         if not user:
             raise HTTPException(status_code=400, detail="User does not exist")
@@ -82,7 +80,7 @@ class AuthController:
         
         password = f'{auth_channel}.{email}|wellgab2024'
 
-        user: User = user_service.UserService.get_user(email)
+        user: Users = user_service.UserService.get_user(email)
 
         if not user:
             new_user = auth_service.AuthService.create_user(email=email, password=password, auth_channel=auth_channel)

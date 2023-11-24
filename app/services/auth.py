@@ -1,7 +1,7 @@
 from typing import Optional
 from passlib.context import CryptContext
 
-from ..models.user import User
+from ..models.user import Users
 from ..utils.setup import token
 
 
@@ -30,7 +30,7 @@ class AuthService:
     def create_user(email: str, password: str, auth_channel: str) -> dict:
         hashed_password = HashingMixin.hash(password)
 
-        user: User = User(email=email, password=hashed_password, auth_channel=auth_channel).save()
+        user: Users = Users(email=email, password=hashed_password, auth_channel=auth_channel).save()
         id: str = str(user.id)
 
         access_token = token.create_access_token(payload={"user_id": id})

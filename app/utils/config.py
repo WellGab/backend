@@ -6,6 +6,7 @@ class Configuration():
 
     def __init__(self):
         self._get_env_vars()
+        self._set_non_env_vars()
 
     def _get_env_vars(self):
         load_dotenv()
@@ -21,4 +22,6 @@ class Configuration():
         self.API_AUDIENCE=os.getenv('API_AUDIENCE')
 
     def _set_non_env_vars(self):
-        self.AUTH_URL = "auth"
+        self.ROOT_PATH = "/api/v1"
+        self.AUTH_URL = "/auth"
+        self.CHAT_URL = "/chats"

@@ -1,13 +1,13 @@
-from ..models.user import User
+from ..models.user import Users
 
 
 class UserService:
     @staticmethod
     def user_exists(email: str) -> bool:
-        num_users = User.objects(email=email).count()
+        num_users = Users.objects(email=email).count()
         return num_users > 0
 
     @staticmethod
-    def get_user(email: str) -> User:
-        user = User.objects(email=email).first()
+    def get_user(email: str) -> Users:
+        user = Users.objects(email=email).first()
         return user
