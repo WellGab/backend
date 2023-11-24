@@ -4,9 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import auth
 
-app = FastAPI()
-
-
 app = FastAPI(
     title="WellGab",
     description="An AI powered medical diagnosis app",
