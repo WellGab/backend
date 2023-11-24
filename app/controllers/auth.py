@@ -7,7 +7,7 @@ from ..models.user import (Users, AUTH_CHANNEL_DEFAULT, AUTH_CHANNEL_GOOGLE, AUT
 
 class AuthController:
     """Authentication Controller."""
-    
+
     @staticmethod
     def sign_up(user_data: auth_schema.SignUpSchema) -> auth_schema.AuthResponse:
         """Add user with hashed password to database."""
@@ -61,8 +61,12 @@ class AuthController:
         """Verifies login credentials and returns access token."""
         payload: dict = auth_service.AuthService.social_auth(auth0_token=user_data.token)
 
-        if not payload:
-            raise HTTPException(status_code=400, detail="Email does not exist")
+        error = payload["error"]
+        if error:
+            raise HTTPException(status_code=error["code"], detail={
+                 'message': error["message"], 
+                 'description': error["description"]
+            })
 
         email = payload['email']
         sub = payload['sub']

@@ -74,7 +74,13 @@ class Token():
                 )
                 email = payload['email']
                 if email == '' or not email:
-                    return None
+                    return {
+                        'error': {
+                            'message': 'no_email',
+                            'description': 'No email address.',
+                            'code': 403
+                        }
+                    }
 
                 return {
                     'email': email,
@@ -82,22 +88,41 @@ class Token():
                 }
 
             except jwt.ExpiredSignatureError:
-                raise Auth0Error({
-                    'code': 'token_expired',
-                    'description': 'Token expired.'
-                }, 401)
+                return {
+                    'error': {
+                        'message': 'token_expired',
+                        'description': 'Token expired.',
+                        'code': 401
+                    }
+                }
 
             except jwt.JWTClaimsError:
-                raise Auth0Error({
-                    'code': 'invalid_claims',
-                    'description': 'Incorrect claims. Please, check the audience and issuer.'
-                }, 401)
+                return {
+                    'error': {
+                        'message': 'invalid_claims',
+                        'description': 'Incorrect claims. Please, check the audience and issuer.',
+                        'code': 401
+                    }
+                }
             except Exception:
-                raise Auth0Error({
-                    'code': 'invalid_header',
-                    'description': 'Unable to parse authentication token.'
-                }, 400)
-        raise Auth0Error({
-                    'code': 'invalid_header',
-                    'description': 'Unable to find the appropriate key.'
-                }, 400)
+                return {
+                    'error': {
+                        'message': 'invalid_header',
+                        'description': 'Unable to parse authentication token.',
+                        'code': 400
+                    }
+                }
+        return {
+            'error': {
+                'message': 'invalid_header',
+                'description': 'Unable to find the appropriate key.',
+                'code': 400
+            }
+        }
+    
+    
+    
+    # Auth0Error({
+    #                 'code': 'invalid_header',
+    #                 'description': 'Unable to find the appropriate key.'
+    #             }, 400)
