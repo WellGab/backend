@@ -26,6 +26,8 @@ jobs:
           envkey_API_AUDIENCE: ${{ secrets.API_AUDIENCE }}
           envkey_MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
           envkey_MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          envkey_OPEN_API_KEY: ${{ secrets.envkey_OPEN_API_KEY }}
+          envkey_BASE_PROMPT: ${{ secrets.BASE_PROMPT }}
 
           file_name: .env
           fail_on_empty: false
