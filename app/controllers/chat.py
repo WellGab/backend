@@ -8,8 +8,8 @@ class ChatController:
     """Chats Controller."""
 
     @staticmethod
-    def send_message(uid: str, message: str) -> str:
-        response = chat_service.ChatService.send_message(message)
+    async def send_message(uid: str, message: str) -> str:
+        response = await chat_service.ChatService.send_message(message)
         # data = {
         #     "message": message,
         #     "response": response

@@ -13,7 +13,7 @@ class ChatNamespace(socketio.AsyncNamespace):
 
     async def on_message(self, sid, data):
         print(f'message|{sid}: ', data)
-        response = chat_controller.ChatController.send_message(sid, data)
+        response = await chat_controller.ChatController.send_message(sid, data)
         await self.sio_server.emit(event="response", data=response, namespace=self.namespace)
 
     def on_disconnect(self, sid):

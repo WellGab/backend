@@ -5,7 +5,7 @@ from pydantic_settings import (
 )
 import pytest
 
-from app.utils.const import AUTH_URL
+from app.utils.setup import config
 from app.main import app
 
 

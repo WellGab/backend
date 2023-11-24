@@ -20,6 +20,8 @@ class Configuration():
         self.AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
         self.AUTH0_ALGORITHMS= [os.getenv('AUTH0_ALGORITHM')]
         self.API_AUDIENCE=os.getenv('API_AUDIENCE')
+        self.OPEN_API_KEY=os.getenv('OPEN_API_KEY')
+        self.BASE_PROMPT=os.getenv('BASE_PROMPT')
 
     def _set_non_env_vars(self):
         self.ROOT_PATH = "/api/v1"

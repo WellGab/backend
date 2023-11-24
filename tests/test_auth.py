@@ -1,7 +1,7 @@
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from app.utils.const import (
+from app.utils.setup import (
     AUTH_URL,
 )
 from app.main import app
