@@ -22,8 +22,8 @@ app.add_middleware(
 )
 
 
-@ app.get("/")
+@ app.get("/api/v1")
 async def root():
     return {"message": "WellGab"}
 
-app.include_router(auth.router)
+app.include_router(prefix="/api/v1", router=auth.router)

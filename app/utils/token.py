@@ -72,7 +72,6 @@ class Token():
                     audience=self.config.API_AUDIENCE,
                     issuer='https://' + self.config.AUTH0_DOMAIN + '/'
                 )
-                print("Payload: ", payload)
                 email = payload['email']
                 if email == '' or not email:
                     return None
