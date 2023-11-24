@@ -6,7 +6,7 @@ from ..controllers import auth as auth_controller
 
 router = APIRouter(prefix="/auth", tags=['Authentication'])
 
-@router.post("/sign-up/", response_model=auth_schema.AuthResponse)
+@router.post("/sign-up", response_model=auth_schema.AuthResponse)
 async def signup(user_data: auth_schema.SignUpSchema):
     return auth_controller.AuthController.sign_up(user_data)
 
