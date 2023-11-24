@@ -16,6 +16,9 @@ class Configuration():
         self.ALGORITHM = os.getenv('ALGORITHM')
         self.ACCESS_TOKEN_EXPIRE_MINUTES = int(
             os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))
+        self.AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
+        self.AUTH0_ALGORITHMS= [os.getenv('AUTH0_ALGORITHM')]
+        self.API_AUDIENCE=os.getenv('API_AUDIENCE')
 
     def _set_non_env_vars(self):
         self.AUTH_URL = "auth"

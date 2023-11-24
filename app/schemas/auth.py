@@ -10,25 +10,17 @@ class LoginSchema(BaseModel):
     email: EmailStr
     password: str
 
+class SocialAuthSchema(BaseModel):
+    token: str
 
-class LoginResponseData(BaseModel):
+
+class AuthResponseData(BaseModel):
     user_id: str
     token: str
 
 
-class LoginResponse(BaseModel):
+class AuthResponse(BaseModel):
     message: str
     status_code: int
-    data: Optional[LoginResponseData]
-
-
-class SignUpResponseData(BaseModel):
-    user_id: str
-    token: str
-
-
-class SignUpResponse(BaseModel):
-    message: str
-    status_code: int
-    data: Optional[SignUpResponseData]
+    data: Optional[AuthResponseData]
 

@@ -27,10 +27,10 @@ class AuthService:
     """Authentication service."""
 
     @staticmethod
-    def create_user(email: str, password: str) -> dict:
+    def create_user(email: str, password: str, auth_channel: str) -> dict:
         hashed_password = HashingMixin.hash(password)
 
-        user: User = User(email=email, password=hashed_password).save()
+        user: User = User(email=email, password=hashed_password, auth_channel=auth_channel).save()
         id: str = str(user.id)
 
         access_token = token.create_access_token(payload={"user_id": id})
@@ -52,6 +52,11 @@ class AuthService:
             "token": access_token
         }
 
+    @staticmethod
+    def social_auth(auth0_token: str) -> dict:
+        """Verifies login credentials and returns access token."""
+
+        return token.verify_social_auth_token(token=auth0_token)
 
 class AuthDataManager:
     @staticmethod
