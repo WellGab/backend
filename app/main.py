@@ -40,5 +40,3 @@ sio_asgi_app = chat_server.sio_app
 
 app.add_route(f'{config.ROOT_PATH}/chats', route=sio_asgi_app, methods=["GET", "POST"])
 app.add_websocket_route("/socket.io/", sio_asgi_app)
-
-

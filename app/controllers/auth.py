@@ -59,6 +59,12 @@ class AuthController:
     @staticmethod
     def social_auth(user_data: auth_schema.SocialAuthSchema) -> auth_schema.AuthResponse:
         """Verifies login credentials and returns access token."""
+        if user_data.token == "":
+            raise HTTPException(status_code=401, detail={
+                 'message': "invalid_claims", 
+                 'description': "Incorrect claims. Please, check the audience and issuer."
+            })
+
         payload: dict = auth_service.AuthService.social_auth(auth0_token=user_data.token)
 
         error = payload["error"]
