@@ -1,6 +1,10 @@
 # Use an official Python runtime as a parent image
 FROM python:3.9.18-alpine3.18
 
+ENV PYTHONDONTWRITEBYTECODE=1
+
+ENV PYTHONUNBUFFERED=1
+
 # Install build dependencies
 RUN apk add --no-cache build-base libffi-dev
 
@@ -19,8 +23,6 @@ RUN pip install --upgrade setuptools
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
 
-# Run the app when the container launches
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
