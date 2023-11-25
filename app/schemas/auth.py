@@ -26,3 +26,12 @@ class AuthResponse(BaseModel):
     message: str
     status_code: int
     data: Optional[AuthResponseData]
+
+
+class SubscribeSchema(BaseModel):
+    email: EmailStr
+
+
+class SubscribeResponse(BaseModel):
+    message: str
+    status_code: int

@@ -15,7 +15,7 @@ async def signup(user_data: auth_schema.SignUpSchema):
 
 
 @router.post("/token", response_model=dict)
-def login(user_data: OAuth2PasswordRequestForm = Depends()):
+def token(user_data: OAuth2PasswordRequestForm = Depends()):
     user = auth_schema.LoginSchema(
         email=user_data.username, password=user_data.password
     )
@@ -28,5 +28,10 @@ def login(user_data: auth_schema.LoginSchema):
 
 
 @router.post("/social-auth", response_model=auth_schema.AuthResponse)
-def login(user_data: auth_schema.SocialAuthSchema):
+def social_auth(user_data: auth_schema.SocialAuthSchema):
     return auth_controller.AuthController.social_auth(user_data)
+
+
+@router.post("/subscribe", response_model=auth_schema.SubscribeResponse)
+def subscribe(sub_data: auth_schema.SubscribeSchema):
+    return auth_controller.AuthController.subscribe(sub_data)
