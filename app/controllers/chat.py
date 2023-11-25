@@ -121,8 +121,9 @@ class ChatController:
         payload = json.load(str)
         uid = payload['uid'] if payload['uid'] else sid
         message = payload['message']
-        response = await chat_service.ChatService.send_message(message)
+        # response = await chat_service.ChatService.send_message(message)
         chat_service.ChatService.save_conversation(uid, message, response)
+        return "doings"
         return response
 
     @ staticmethod

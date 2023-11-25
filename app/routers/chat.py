@@ -8,9 +8,9 @@ from ..services.auth import AuthService
 router = APIRouter(prefix=config.CHAT_URL, tags=["Chats"])
 
 
-@router.get("/conversations", response_model=chat_schema.ConversationResponse)
-def get_user_conversations(user_id: str = Depends(AuthService.get_current_user_id), page_number: int = 1, page_size: int = 50):
-    return chat_controller.ChatController.get_user_conversations(user_id, page_number, page_size)
+# @router.get("/conversations", response_model=chat_schema.ConversationResponse)
+# def get_user_conversations(user_id: str = Depends(AuthService.get_current_user_id), page_number: int = 1, page_size: int = 50):
+#     return chat_controller.ChatController.get_user_conversations(user_id, page_number, page_size)
 
 
 @router.post("/chats", response_model=chat_schema.CreateChatResponse)
