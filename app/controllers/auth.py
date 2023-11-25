@@ -111,7 +111,7 @@ class AuthController:
             auth0_token=user_data.token
         )
 
-        error = payload["error"]
+        error = payload.get("error")
         if error:
             raise HTTPException(
                 status_code=error["code"],

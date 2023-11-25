@@ -51,7 +51,6 @@ class Token:
         jsonurl = urlopen(f"https://{self.config.AUTH0_DOMAIN}/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
         unverified_header = jwt.get_unverified_header(token)
-        print(unverified_header)
         rsa_key = {}
         if "kid" not in unverified_header:
             raise Auth0Error(
@@ -77,7 +76,7 @@ class Token:
                     audience=self.config.API_AUDIENCE,
                     issuer="https://" + self.config.AUTH0_DOMAIN + "/",
                 )
-                email = payload["email"]
+                email = payload.get("email")
                 if email == "" or not email:
                     return {
                         "error": {
@@ -87,7 +86,7 @@ class Token:
                         }
                     }
 
-                return {"email": email, "sub": payload["sub"]}
+                return payload
 
             except jwt.ExpiredSignatureError:
                 return {
@@ -106,11 +105,11 @@ class Token:
                         "code": 401,
                     }
                 }
-            except Exception:
+            except Exception as e:
                 return {
                     "error": {
                         "message": "invalid_header",
-                        "description": "Unable to parse authentication token.",
+                        "description": f"Unable to parse authentication token. {str(e)}",
                         "code": 400,
                     }
                 }
