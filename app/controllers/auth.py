@@ -127,8 +127,6 @@ class AuthController:
         email = payload["email"]
         sub = payload["sub"]
 
-        print(sub, "the sub")
-
         auth_channel: str
 
         if "google" in sub:
@@ -159,7 +157,10 @@ class AuthController:
             }
 
         if user.auth_channel != auth_channel:
-            raise HTTPException(status_code=400, detail="Invalid auth subscriber")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Please login with {user.auth_channel.replace('-', ' ').title()}",
+            )
 
         # Login user
         id = str(user.id)
