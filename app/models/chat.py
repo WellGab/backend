@@ -16,3 +16,17 @@ class Chats(Document):
     user = ReferenceField(Users, required=True)
     conversations = ListField(EmbeddedDocumentField(Conversations))
     created_at = DateTimeField(default=datetime.now())
+
+
+class AnonConversations(EmbeddedDocument):
+    uid = ObjectIdField(required=True)
+    anon_id = StringField()
+    message = StringField(required=True)
+    reply = StringField()
+    created_at = DateTimeField(default=datetime.now())
+
+class AnonChats(Document):
+    topic = StringField()
+    uid = StringField()
+    conversations = ListField(EmbeddedDocumentField(AnonConversations))
+    created_at = DateTimeField(default=datetime.now())

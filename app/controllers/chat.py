@@ -34,6 +34,30 @@ class ChatController:
                    },
             )
         }
+    
+    @staticmethod
+    def create_anon_chat(req_data: chat_schema.CreateAnonChatSchema) -> chat_schema.CreateChatResponse:
+        chat_count = chat_service.ChatModelService.get_anon_user_chats_count(req_data.uid)
+        
+        if chat_count > 0:
+            raise HTTPException(status_code=403, detail="sign up to create more chats")
+
+        chatTuple = chat_service.ChatModelService.create_anon_chat(req_data.uid, req_data.topic)
+        id = chatTuple[0]
+        topic = chatTuple[1]
+
+        if id == "":
+            raise HTTPException(status_code=500, detail="chat not created")
+
+        return {
+            "message": "Successful",
+            "status_code": str(status.HTTP_200_OK),
+            "data": chat_schema.CreateChatResponseData(
+                **{"id": id,
+                   "topic": topic,
+                   },
+            )
+        }
 
     @staticmethod
     def get_chats(user_id: str, page_number: int, page_size: int) -> chat_schema.ChatResponse:
@@ -135,6 +159,26 @@ class ChatController:
 
         chat = chat_service.ChatModelService.update_chat(
             chat, topic, [conversation])
+        return response
+
+    @ staticmethod
+    async def send_anon_message(sid: str, chat_id: str, message: str) -> str:
+        chat = chat_service.ChatModelService.get_anon_chat_by_id(chat_id)
+        if not chat:
+            raise HTTPException(status_code=400, detail="chat not found")
+        
+        if len(chat.conversations) == 10:
+            raise HTTPException(status_code=403, detail="sign up to chat more")
+        
+        response = await chat_service.ChatService.interact(message, chat.conversations)
+
+        conversation = chat_models.AnonConversations(uid=bson.ObjectId(),
+                                                 anon_id=chat.uid,
+                                                 message=message,
+                                                 reply=response,
+                                                 created_at=datetime.now())
+
+        chat = chat_service.ChatModelService.update_anon_chat(chat=chat, new_conversations=[conversation])
         return response
 
     @ staticmethod

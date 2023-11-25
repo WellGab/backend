@@ -44,6 +44,11 @@ class CreateChatSchema(BaseModel):
     topic: str
 
 
+class CreateAnonChatSchema(BaseModel):
+    uid: str
+    topic: str
+
+
 class CreateChatResponseData(BaseModel):
     id: str
     topic: str

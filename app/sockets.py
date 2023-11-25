@@ -24,7 +24,7 @@ class ChatNamespace(socketio.AsyncNamespace):
         (id, st) = authenticate_socket_connection(auth)
         if not st:
             self.enter_room(sid, sid)
-            await self.send_error(sid, "not authenticated")
+            # await self.send_error(sid, "not authenticated")
             return
 
         self.enter_room(sid, id)
@@ -33,10 +33,10 @@ class ChatNamespace(socketio.AsyncNamespace):
         print("joining room")
         auth = data.get("auth")
         (id, st) = authenticate_socket_connection(auth)
-        if not st:
-            self.enter_room(sid, sid)
-            await self.send_error(sid, "not authenticated")
-            return
+        # if not st:
+        #     self.enter_room(sid, sid)
+        #     await self.send_error(sid, "not authenticated")
+        #     return
         room: str
         try:
             room = data.get("room")
@@ -45,7 +45,7 @@ class ChatNamespace(socketio.AsyncNamespace):
             await self.send_error(sid, "room not provided")
             return
 
-        chat = ChatModelService.get_chat_by_id(room)
+        chat = ChatModelService.get_chat_by_id(room) if st else ChatModelService.get_anon_chat_by_id(room)
         if not chat:
             self.enter_room(sid, sid)
             await self.send_error(sid, "invalid chat")
@@ -67,6 +67,9 @@ class ChatNamespace(socketio.AsyncNamespace):
         print(f"{sid} left room: {room}")
 
     async def on_message(self, sid, data):
+        auth = data.get("auth")
+        (id, st) = authenticate_socket_connection(auth)
+
         room: str
         try:
             room = data.get("room")
@@ -81,11 +84,14 @@ class ChatNamespace(socketio.AsyncNamespace):
         except Exception as e:
             pass
 
-        response = await chat_controller.ChatController.send_message(sid, room, message)
-        response = "I got the message: " + message + " and the response " + response
-        await self.sio_server.emit(
-            event="response", data=response, namespace=self.namespace, room=room
-        )
+        try:
+            response = await chat_controller.ChatController.send_message(sid, room, message) if(st) else await chat_controller.ChatController.send_anon_message(sid, room, message)
+            response = "I got the message: " + message + " and the response " + response
+            await self.sio_server.emit(
+                event="response", data=response, namespace=self.namespace, room=room
+            )
+        except Exception as e:
+            await self.send_error(sid, str(e))    
 
     async def on_disconnect(self, sid):
         print(f"{sid}: disconnected")
