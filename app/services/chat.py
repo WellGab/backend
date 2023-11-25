@@ -13,10 +13,15 @@ class ChatService:
 
         try:
             stream = await client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt,}],
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
                 model="gpt-3.5-turbo",
-                temperature= 0.5,
-                max_tokens=1024, 
+                temperature=0.5,
+                max_tokens=1024,
                 top_p=1,
                 frequency_penalty=0,
                 presence_penalty=0,
@@ -25,7 +30,3 @@ class ChatService:
             return response.strip()
         except Exception:
             return "Pardon!"
-
-        
-
-        

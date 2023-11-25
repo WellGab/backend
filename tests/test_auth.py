@@ -11,6 +11,6 @@ client = TestClient(app)
 
 
 def test_login(config):
-    response = client.post(f'/{AUTH_URL}/login')
+    response = client.post(f"/{AUTH_URL}/login")
 
     assert response.status_code == status.HTTP_200_OK

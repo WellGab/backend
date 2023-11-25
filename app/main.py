@@ -2,12 +2,11 @@ from app.version import __version__
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import ( auth, chat )
+from .routers import auth, chat
 
 from .sockets import ChatServer
 
 from .utils.setup import config
-
 
 
 app = FastAPI(
@@ -32,11 +31,12 @@ app.add_middleware(
 async def root():
     return {"message": "WellGab"}
 
+
 app.include_router(prefix=config.ROOT_PATH, router=auth.router)
 app.include_router(prefix=config.ROOT_PATH, router=chat.router)
 
-chat_server = ChatServer(app, f'{config.ROOT_PATH}/chats')
+chat_server = ChatServer(app, f"{config.ROOT_PATH}/chats")
 sio_asgi_app = chat_server.sio_app
 
-app.add_route(f'{config.ROOT_PATH}/chats', route=sio_asgi_app, methods=["GET", "POST"])
+app.add_route(f"{config.ROOT_PATH}/chats", route=sio_asgi_app, methods=["GET", "POST"])
 app.add_websocket_route("/socket.io/", sio_asgi_app)

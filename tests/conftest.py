@@ -25,6 +25,7 @@ class TestConfig(BaseSettings):
 
 _config = TestConfig()
 
+
 @pytest.fixture
 def config():
     return _config
