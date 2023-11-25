@@ -15,3 +15,7 @@ class Users(Document):
     password = StringField(required=True)
     auth_channel = StringField(required=True)
     created_at = DateTimeField(default=datetime.now())
+
+class Subscribers(Document):
+    email = EmailField(unique=True, required=True)
+    created_at = DateTimeField(default=datetime.now())
