@@ -1,6 +1,10 @@
 from fastapi import status, HTTPException
 from ..schemas import auth as auth_schema
-from ..services import auth as auth_service, user as user_service, subscribe as subscriber_service
+from ..services import (
+    auth as auth_service,
+    user as user_service,
+    subscribe as subscriber_service,
+)
 from ..models.user import (
     Users,
     AUTH_CHANNEL_DEFAULT,
@@ -18,11 +22,9 @@ class AuthController:
     def sign_up(user_data: auth_schema.SignUpSchema) -> auth_schema.AuthResponse:
         """Add user with hashed password to database."""
         # Check if the email already exists
-        user_exists: bool = user_service.UserService.user_exists(
-            user_data.email)
+        user_exists: bool = user_service.UserService.user_exists(user_data.email)
         if user_exists:
-            raise HTTPException(
-                status_code=400, detail="Email already registered")
+            raise HTTPException(status_code=400, detail="Email already registered")
 
         # Create user document
         new_user = auth_service.AuthService.create_user(
@@ -49,8 +51,7 @@ class AuthController:
             raise HTTPException(status_code=400, detail="User does not exist")
 
         if user.auth_channel != AUTH_CHANNEL_DEFAULT:
-            raise HTTPException(
-                status_code=400, detail="Sign in with social auth")
+            raise HTTPException(status_code=400, detail="Sign in with social auth")
 
         # Login user
         id = str(user.id)
@@ -59,8 +60,7 @@ class AuthController:
         )
 
         if not user:
-            raise HTTPException(
-                status_code=400, detail="Couldn't not log in user")
+            raise HTTPException(status_code=400, detail="Couldn't not log in user")
 
         return {
             "message": "login successful",
@@ -77,8 +77,7 @@ class AuthController:
             raise HTTPException(status_code=400, detail="User does not exist")
 
         if user.auth_channel != AUTH_CHANNEL_DEFAULT:
-            raise HTTPException(
-                status_code=400, detail="Sign in with social auth")
+            raise HTTPException(status_code=400, detail="Sign in with social auth")
 
         # Login user
         id = str(user.id)
@@ -87,8 +86,7 @@ class AuthController:
         )
 
         if not user:
-            raise HTTPException(
-                status_code=400, detail="Couldn't not log in user")
+            raise HTTPException(status_code=400, detail="Couldn't not log in user")
 
         data = auth_schema.AuthResponseData(**user)
 
@@ -129,6 +127,8 @@ class AuthController:
         email = payload["email"]
         sub = payload["sub"]
 
+        print(sub, "the sub")
+
         auth_channel: str
 
         if "google" in sub:
@@ -138,8 +138,7 @@ class AuthController:
         elif "windows" in sub:
             auth_channel = AUTH_CHANNEL_MICROSOFT
         else:
-            raise HTTPException(
-                status_code=400, detail="Invalid auth subscriber")
+            raise HTTPException(status_code=400, detail="Invalid auth subscriber")
 
         password = f"{auth_channel}.{email}|wellgab2024"
 
@@ -151,8 +150,7 @@ class AuthController:
             )
 
             if not new_user:
-                raise HTTPException(
-                    status_code=400, detail="Couldn't create user")
+                raise HTTPException(status_code=400, detail="Couldn't create user")
 
             return {
                 "message": "sign up successful",
@@ -161,8 +159,7 @@ class AuthController:
             }
 
         if user.auth_channel != auth_channel:
-            raise HTTPException(
-                status_code=400, detail="Invalid auth subscriber")
+            raise HTTPException(status_code=400, detail="Invalid auth subscriber")
 
         # Login user
         id = str(user.id)
@@ -171,8 +168,7 @@ class AuthController:
         )
 
         if not user:
-            raise HTTPException(
-                status_code=400, detail="Couldn't not log in user")
+            raise HTTPException(status_code=400, detail="Couldn't not log in user")
 
         return {
             "message": "login successful",
@@ -181,10 +177,13 @@ class AuthController:
         }
 
     @staticmethod
-    def subscribe(user_data: auth_schema.SubscribeSchema) -> auth_schema.SubscribeResponse:
+    def subscribe(
+        user_data: auth_schema.SubscribeSchema,
+    ) -> auth_schema.SubscribeResponse:
         # Check if the email already exists
         subscriber_exists: bool = subscriber_service.SubscribeService.subscriber_exists(
-            user_data.email)
+            user_data.email
+        )
         if subscriber_exists:
             return {
                 "message": "Already Subscribed",
