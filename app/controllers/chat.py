@@ -117,13 +117,24 @@ class ChatController:
         }
 
     @ staticmethod
-    async def send_message(sid: str, data: str) -> str:
-        payload = json.load(str)
-        uid = payload['uid'] if payload['uid'] else sid
-        message = payload['message']
-        # response = await chat_service.ChatService.send_message(message)
-        chat_service.ChatService.save_conversation(uid, message, response)
-        return "doings"
+    async def send_message(sid: str, chat_id: str, message: str) -> str:
+        chat = chat_service.ChatModelService.get_chat_by_id(chat_id)
+        if not chat:
+            raise HTTPException(status_code=400, detail="chat not found")
+
+        response = await chat_service.ChatService.interact(message, chat.conversations)
+        topic: str = chat.topic
+        if topic == "" or ("new" in topic.lower() and "chat" in topic.lower()):
+            topic = await chat_service.ChatService.get_topic(message)
+
+        conversation = chat_models.Conversations(uid=bson.ObjectId(),
+                                                 user=chat.user,
+                                                 message=message,
+                                                 reply=response,
+                                                 created_at=datetime.now())
+
+        chat = chat_service.ChatModelService.update_chat(
+            chat, topic, [conversation])
         return response
 
     @ staticmethod

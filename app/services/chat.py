@@ -80,6 +80,77 @@ class ChatService:
         except Exception:
             return "Pardon!"
 
+    async def get_topic(message: str) -> str:
+        client = AsyncOpenAI(
+            api_key=config.OPEN_API_KEY,
+        )
+
+        prompt = "generate a topic for me from this: " + message
+
+        try:
+            stream = await client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="gpt-3.5-turbo",
+                temperature=0.5,
+                max_tokens=1024,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0,
+            )
+            response = stream.choices[0].message.content
+            return response.strip()
+        except Exception:
+            return "Pardon!"
+
+    @staticmethod
+    async def interact(message: str, conversations: list[Conversations]) -> str:
+        client = AsyncOpenAI(
+            api_key=config.OPEN_API_KEY,
+        )
+
+        convo = [
+            {"role": "system", "content": config.BASE_PROMPT},
+        ]
+
+        count: int = 0
+        for c in conversations:
+            count += 1
+            if count == 1:
+                convo = convo + [{"role": "user", "content": config.BASE_PROMPT + c.message},
+                                 {"role": "assistant", "content": c.reply},]
+            else:
+                convo = convo + [{"role": "user", "content": c.message},
+                                 {"role": "assistant", "content": c.reply},]
+
+        if len(conversations) < 0:
+            message = config.BASE_PROMPT + message
+
+        convo = convo + [{"role": "user", "content": message},]
+
+        # prompt = config.BASE_PROMPT + message
+        try:
+            stream = await client.chat.completions.create(
+                messages=convo,
+                model="gpt-3.5-turbo",
+                temperature=0.5,
+                max_tokens=1024,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0,
+            )
+            response = stream.choices[0].message.content
+            print("This is the response for: ", convo)
+            print("This is the response for: ", response)
+            print("This is the response for: ", response.strip())
+            return response.strip()
+        except Exception:
+            return "Pardon!"
+
     @staticmethod
     def get_user_conversations(uid: str, page_number: int = 1, page_size: int = 50) -> list[Conversations]:
         offset = page_size * (page_number - 1) or 0
