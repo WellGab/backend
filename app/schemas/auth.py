@@ -2,13 +2,16 @@ from pydantic import BaseModel
 from pydantic.networks import EmailStr
 from typing import List, Optional
 
+
 class SignUpSchema(BaseModel):
     email: EmailStr
     password: str
 
+
 class LoginSchema(BaseModel):
     email: EmailStr
     password: str
+
 
 class SocialAuthSchema(BaseModel):
     token: str
@@ -23,4 +26,3 @@ class AuthResponse(BaseModel):
     message: str
     status_code: int
     data: Optional[AuthResponseData]
-

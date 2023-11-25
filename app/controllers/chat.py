@@ -11,5 +11,3 @@ class ChatController:
     async def send_message(uid: str, message: str) -> str:
         response = await chat_service.ChatService.send_message(message)
         return response
-
-   

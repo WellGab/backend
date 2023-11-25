@@ -1,10 +1,10 @@
 from mongoengine import *
 
 
-class Mongodb():
+class Mongodb:
     def __init__(self, dsn: str, db: str):
         self.db_name = db
-        self.conn = connect(host=dsn, alias='default', w='majority')
+        self.conn = connect(host=dsn, alias="default", w="majority")
         self.db = self.conn[db]
 
     def get_db(self):

@@ -6,6 +6,7 @@ AUTH_CHANNEL_GOOGLE = "google"
 AUTH_CHANNEL_APPLE = "apple"
 AUTH_CHANNEL_MICROSOFT = "windows"
 
+
 class Users(Document):
     firstname = StringField(required=False)
     lastname = StringField(required=False)
