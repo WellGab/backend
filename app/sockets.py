@@ -11,18 +11,26 @@ class ChatNamespace(socketio.AsyncNamespace):
 
     def on_connect(self, sid, environ, auth):
         print(f"{sid}: connected")
-        print(f"{sid}: {environ}")
+        # print(f"{sid}: {environ}")
         print(f"{sid}: {auth}")
 
-        if auth:
-            token = auth.get("token", None)
-            if token:
-                user = AuthService.get_current_sio_user(token)
-                if user:
-                    self.enter_room(sid, user.id)
-                self.disconnect(sid)
+        if not auth:
+            self.enter_room(sid, uuid.uuid4().hex)
+            return
 
-        self.enter_room(sid, uuid.uuid4().hex)
+        token = auth.get("token", None)
+
+        if not token:
+            self.enter_room(sid, uuid.uuid4().hex)
+            return
+
+        id = AuthService.get_current_user_id(token)
+
+        if not id:
+            self.enter_room(sid, uuid.uuid4().hex)
+            return
+        
+        self.enter_room(sid, id)
 
     async def on_message(self, sid, data):
         response = await chat_controller.ChatController.send_message(sid, data)
