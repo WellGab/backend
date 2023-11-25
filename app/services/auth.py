@@ -5,8 +5,7 @@ from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 
 from ..models.user import Users
-from ..utils.setup import token, config
-from .user import UserService
+from ..utils.setup import token
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -61,38 +60,5 @@ class AuthService:
         return token.verify_social_auth_token(token=auth0_token)
 
     @staticmethod
-    def get_current_user(token: str = Depends(oauth2_scheme)):
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        try:
-            payload = jwt.decode(
-                token, config.SECRET_KEY, algorithms=[config.ALGORITHM]
-            )
-            id: str = payload.get("user_id")
-            if id is None:
-                raise credentials_exception
-        except JWTError:
-            raise credentials_exception
-        user = UserService.get_user_by_id(id=id)
-        if user is None:
-            raise credentials_exception
-        return user
-
-    @staticmethod
-    def get_current_sio_user(token: str = Depends(oauth2_scheme)):
-        try:
-            payload = jwt.decode(
-                token, config.SECRET_KEY, algorithms=[config.ALGORITHM]
-            )
-            id: str = payload.get("user_id")
-            if id is None:
-                return False
-        except JWTError:
-            return False
-        user = UserService.get_user_by_id(id=id)
-        if user is None:
-            return False
-        return user
+    def get_current_user_id(access_token: str = Depends(oauth2_scheme)):
+        return token.verify_access_token(access_token)

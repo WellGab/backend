@@ -25,10 +25,9 @@ class ChatNamespace(socketio.AsyncNamespace):
         self.enter_room(sid, uuid.uuid4().hex)
 
     async def on_message(self, sid, data):
-        print(f"message|{sid}: ", data)
         response = await chat_controller.ChatController.send_message(sid, data)
         await self.sio_server.emit(
-            event="response", data=data, namespace=self.namespace, room=sid
+            event="response", data=response, namespace=self.namespace, room=sid
         )
 
     def on_disconnect(self, sid):

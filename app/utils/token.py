@@ -1,4 +1,6 @@
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 import json
 from urllib.request import urlopen
@@ -33,20 +35,15 @@ class Token:
 
         return encoded_jwt
 
-    def verify_access_token(self, token: str, credentials_exception) -> str:
+    def verify_access_token(self, token: str) -> str:
         try:
             payload = jwt.decode(
                 token, self.config.SECRET_KEY, algorithms=[self.config.ALGORITHM]
             )
 
             id: str = payload.get("user_id")
-
-            if id is None:
-                raise credentials_exception
-
-        except JWTError as error:
-            print("Error: ", error)
-            raise credentials_exception
+        except Exception:
+            return None
 
         return id
 
@@ -124,8 +121,3 @@ class Token:
                 "code": 400,
             }
         }
-
-    # Auth0Error({
-    #                 'code': 'invalid_header',
-    #                 'description': 'Unable to find the appropriate key.'
-    #             }, 400)

@@ -1,5 +1,7 @@
 from openai import AsyncOpenAI
 from ..utils.setup import config
+from ..models.chat import Conversations
+import bson
 
 
 class ChatService:
@@ -30,3 +32,16 @@ class ChatService:
             return response.strip()
         except Exception:
             return "Pardon!"
+
+    @staticmethod
+    def get_user_conversations(uid: str, page_number: int = 1, page_size: int = 50) -> list[Conversations]:
+        offset = page_size * (page_number - 1) or 0
+        return Conversations.objects(uid=bson.ObjectId(uid)).order_by('-created_at').limit(page_size).skip(offset)
+
+    @staticmethod
+    def get_user_conversations_count(uid: str) -> int:
+        return Conversations.objects(uid=bson.ObjectId(uid)).count()
+    
+    @staticmethod
+    def save_conversation(uid: str, message: str, response: str):
+        Conversations(uid=bson.ObjectId(uid), message=message, response=response).save()
