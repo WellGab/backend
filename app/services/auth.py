@@ -57,13 +57,3 @@ class AuthService:
         """Verifies login credentials and returns access token."""
 
         return token.verify_social_auth_token(token=auth0_token)
-
-class AuthDataManager:
-    @staticmethod
-    def add_user(self, email: str, pa) -> None:
-        """Write user to database."""
-
-
-    @staticmethod
-    def get_user(self, email: str) -> None:
-        """Read user from database."""
