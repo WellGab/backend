@@ -15,6 +15,7 @@ router = APIRouter(prefix=config.CHAT_URL, tags=["Chats"])
 
 @router.post("/chats", response_model=chat_schema.CreateChatResponse)
 def create_chat(req_data: chat_schema.CreateChatSchema, user_id: str = Depends(AuthService.get_current_user_id)):
+    print("User id: ", user_id)
     return chat_controller.ChatController.create_chat(user_id, req_data)
 
 @router.post("/chats-anon", response_model=chat_schema.CreateChatResponse)

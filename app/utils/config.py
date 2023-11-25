@@ -24,4 +24,4 @@ class Configuration:
     def _set_non_env_vars(self):
         self.ROOT_PATH = "/api/v1"
         self.AUTH_URL = "/auth"
-        self.CHAT_URL = "/chats"
+        self.CHAT_URL = ""

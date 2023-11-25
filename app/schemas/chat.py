@@ -3,7 +3,7 @@ from pydantic.networks import EmailStr
 from typing import List, Optional
 # from ..models import chat as chat_models
 from datetime import datetime
-from .auth import UserSchema
+from .user import UserSchema
 from bson import ObjectId
 
 

@@ -41,8 +41,11 @@ class Token:
                 token, self.config.SECRET_KEY, algorithms=[self.config.ALGORITHM]
             )
 
+            print("Payload: ", payload)
+
             id: str = payload.get("user_id")
-        except Exception:
+        except Exception as e:
+            print("Exception: ", str(e))
             return None
 
         return id

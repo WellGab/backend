@@ -5,12 +5,12 @@ from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 
 from ..models.user import Users
-from ..utils.setup import token
+from ..utils.setup import token, config
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{config.ROOT_PATH}{config.AUTH_URL}/token")
 
 
 class HashingMixin:

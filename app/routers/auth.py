@@ -24,6 +24,7 @@ def token(user_data: OAuth2PasswordRequestForm = Depends()):
 
 @router.post("/login", response_model=auth_schema.AuthResponse)
 def login(user_data: auth_schema.LoginSchema):
+    print("Login: ", user_data)
     return auth_controller.AuthController.login_in(user_data)
 
 
