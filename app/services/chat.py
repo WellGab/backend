@@ -1,7 +1,18 @@
 from openai import AsyncOpenAI
 from ..utils.setup import config
-from ..models.chat import Conversations
+from ..models.chat import Conversations, Chats
+from ..models.user import Users
 import bson
+
+
+class ChatModelService:
+    @staticmethod
+    def create_chat(user: Users, topic: str) -> tuple[str, str]:
+        chat:  Chats = Chats(
+            topic=topic,
+            user=user
+        ).save()
+        return (str(chat.id), chat.topic)
 
 
 class ChatService:
@@ -41,7 +52,8 @@ class ChatService:
     @staticmethod
     def get_user_conversations_count(uid: str) -> int:
         return Conversations.objects(uid=bson.ObjectId(uid)).count()
-    
+
     @staticmethod
     def save_conversation(uid: str, message: str, response: str):
-        Conversations(uid=bson.ObjectId(uid), message=message, response=response).save()
+        Conversations(uid=bson.ObjectId(uid), message=message,
+                      response=response).save()

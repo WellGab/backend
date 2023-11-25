@@ -29,7 +29,23 @@ class ConversationResponseData(BaseModel):
     prev: Optional[int]
     next: Optional[int]
 
+
 class ConversationResponse(BaseModel):
     message: str
     status_code: int
     data: ConversationResponseData
+
+
+class CreateChatSchema(BaseModel):
+    topic: str
+
+
+class CreateChatResponseData(BaseModel):
+    id: str
+    topic: str
+
+
+class CreateChatResponse(BaseModel):
+    message: str
+    status_code: int
+    data: CreateChatResponseData
