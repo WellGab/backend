@@ -11,50 +11,83 @@ class ChatNamespace(socketio.AsyncNamespace):
         super().__init__(namespace=namespace)
         self.sio_server = sio_server
 
-    def on_connect(self, sid, environ, auth):
+    async def send_error(self, sid, message):
+        await self.sio_server.emit(
+            event="error", data=message, namespace=self.namespace, room=sid
+        )
+
+    async def on_connect(self, sid, environ, auth):
         print(f"{sid}: connected")
         print(f"{sid}: environ {environ}")
         print(f"connected {sid}: {auth}")
 
         (id, st) = authenticate_socket_connection(auth)
         if not st:
-            self.enter_room(sid, uuid.uuid4().hex)
+            self.enter_room(sid, sid)
+            await self.send_error(sid, "not authenticated")
             return
 
         self.enter_room(sid, id)
 
     async def on_join(self, sid, data):
-        print("emitted join", data)
+        print("joining room")
         auth = data.get("auth")
         (id, st) = authenticate_socket_connection(auth)
-        print("emitted join 1", id, st)
         if not st:
-            self.enter_room(sid, uuid.uuid4().hex)
+            self.enter_room(sid, sid)
+            await self.send_error(sid, "not authenticated")
             return
-        print("emitted join 2")
-        room = data.get("room")
-        chat = ChatModelService.get_chat_by_id(room)
-        print("emitted join 3")
-        if not chat:
-            self.enter_room(sid, uuid.uuid4().hex)
+        room: str
+        try:
+            room = data.get("room")
+        except Exception as e:
+            self.enter_room(sid, sid)
+            await self.send_error(sid, "room not provided")
             return
 
-        print("emitted join 4")
-        self.enter_room(sid, room)
+        chat = ChatModelService.get_chat_by_id(room)
+        if not chat:
+            self.enter_room(sid, sid)
+            await self.send_error(sid, "invalid chat")
+            return
+
+        self.enter_room(sid, room, namespace=self.namespace)
         print(f"{sid} joined room: {room}")
 
-    async def on_leave(self, sid, room):
+    async def on_leave(self, sid, data):
+        room: str
+        try:
+            room = data.get("room")
+        except Exception as e:
+            self.enter_room(sid, sid)
+            await self.send_error(sid, "room not provided")
+            return
+
         self.leave_room(sid, room)
         print(f"{sid} left room: {room}")
 
     async def on_message(self, sid, data):
-        # response = await chat_controller.ChatController.send_message(sid, data)
-        response = "I got the message: " + str(data)
+        room: str
+        try:
+            room = data.get("room")
+        except Exception as e:
+            self.enter_room(sid, sid)
+            await self.send_error(sid, "room not provided")
+            return
+
+        message: str
+        try:
+            message = data.get("message")
+        except Exception as e:
+            pass
+
+        response = await chat_controller.ChatController.send_message(sid, room, message)
+        response = "I got the message: " + message + " and the response " + response
         await self.sio_server.emit(
-            event="response", data=response, namespace=self.namespace, room=sid
+            event="response", data=response, namespace=self.namespace, room=room
         )
 
-    def on_disconnect(self, sid):
+    async def on_disconnect(self, sid):
         print(f"{sid}: disconnected")
 
 
