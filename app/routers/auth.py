@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from ..schemas import auth as auth_schema
+from ..schemas import auth as auth_schema, user as user_schema
 from ..controllers import auth as auth_controller
 from ..utils.setup import config
+from ..services.auth import AuthService
 
 
 router = APIRouter(prefix=config.AUTH_URL, tags=["Authentication"])
@@ -38,6 +39,6 @@ def subscribe(sub_data: auth_schema.SubscribeSchema):
     return auth_controller.AuthController.subscribe(sub_data)
 
 
-# @router.delete("/user/delete", response_model=auth_schema.SubscribeResponse)
-# def delete_user(sub_data: auth_schema.SubscribeSchema, user_id: str = Depends(AuthService.get_current_user_id)):
-#     return auth_controller.AuthController.subscribe(sub_data)
+@router.delete("/user/delete", response_model=user_schema.DeleteUserResponse)
+def delete_user(data: user_schema.DeleteUserSchema, user_id: str = Depends(AuthService.get_current_user_id)):
+    return auth_controller.AuthController.delete_user(data, user_id)

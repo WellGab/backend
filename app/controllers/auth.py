@@ -1,5 +1,5 @@
 from fastapi import status, HTTPException
-from ..schemas import auth as auth_schema
+from ..schemas import auth as auth_schema, user as user_schema
 from ..services import (
     auth as auth_service,
     user as user_service,
@@ -22,9 +22,11 @@ class AuthController:
     def sign_up(user_data: auth_schema.SignUpSchema) -> auth_schema.AuthResponse:
         """Add user with hashed password to database."""
         # Check if the email already exists
-        user_exists: bool = user_service.UserService.user_exists(user_data.email)
+        user_exists: bool = user_service.UserService.user_exists(
+            user_data.email)
         if user_exists:
-            raise HTTPException(status_code=400, detail="Email already registered")
+            raise HTTPException(
+                status_code=400, detail="Email already registered")
 
         # Create user document
         new_user = auth_service.AuthService.create_user(
@@ -51,7 +53,8 @@ class AuthController:
             raise HTTPException(status_code=400, detail="User does not exist")
 
         if user.auth_channel != AUTH_CHANNEL_DEFAULT:
-            raise HTTPException(status_code=400, detail="Sign in with social auth")
+            raise HTTPException(
+                status_code=400, detail="Sign in with social auth")
 
         # Login user
         id = str(user.id)
@@ -60,7 +63,8 @@ class AuthController:
         )
 
         if not user:
-            raise HTTPException(status_code=400, detail="Couldn't not log in user")
+            raise HTTPException(
+                status_code=400, detail="Couldn't not log in user")
 
         return {
             "message": "login successful",
@@ -77,7 +81,8 @@ class AuthController:
             raise HTTPException(status_code=400, detail="User does not exist")
 
         if user.auth_channel != AUTH_CHANNEL_DEFAULT:
-            raise HTTPException(status_code=400, detail="Sign in with social auth")
+            raise HTTPException(
+                status_code=400, detail="Sign in with social auth")
 
         # Login user
         id = str(user.id)
@@ -86,7 +91,8 @@ class AuthController:
         )
 
         if not user:
-            raise HTTPException(status_code=400, detail="Couldn't not log in user")
+            raise HTTPException(
+                status_code=400, detail="Couldn't not log in user")
 
         data = auth_schema.AuthResponseData(**user)
 
@@ -136,7 +142,8 @@ class AuthController:
         elif "windows" in sub:
             auth_channel = AUTH_CHANNEL_MICROSOFT
         else:
-            raise HTTPException(status_code=400, detail="Invalid auth subscriber")
+            raise HTTPException(
+                status_code=400, detail="Invalid auth subscriber")
 
         password = f"{auth_channel}.{email}|wellgab2024"
 
@@ -148,7 +155,8 @@ class AuthController:
             )
 
             if not new_user:
-                raise HTTPException(status_code=400, detail="Couldn't create user")
+                raise HTTPException(
+                    status_code=400, detail="Couldn't create user")
 
             return {
                 "message": "sign up successful",
@@ -169,7 +177,8 @@ class AuthController:
         )
 
         if not user:
-            raise HTTPException(status_code=400, detail="Couldn't not log in user")
+            raise HTTPException(
+                status_code=400, detail="Couldn't not log in user")
 
         return {
             "message": "login successful",
@@ -200,5 +209,26 @@ class AuthController:
 
         return {
             "message": "Successfully Subscribed",
+            "status_code": str(status.HTTP_200_OK),
+        }
+
+    @staticmethod
+    def delete_user(
+        data: user_schema.DeleteUserSchema,
+        user_id: str
+    ) -> auth_schema.SubscribeResponse:
+        user = user_service.UserService.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=400, detail="user not found")
+
+        if not auth_service.HashingMixin.verify(user.password, data.password):
+            return HTTPException(status_code=400, detail="incorrect password")
+
+        is_deleted = user_service.UserService.delete_user(user)
+        if not is_deleted:
+            raise HTTPException(status_code=400, detail="deleting user failed")
+
+        return {
+            "message": "Successfully deleted account",
             "status_code": str(status.HTTP_200_OK),
         }
