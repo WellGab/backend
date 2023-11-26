@@ -87,7 +87,6 @@ class ChatNamespace(socketio.AsyncNamespace):
 
         try:
             response = await chat_controller.ChatController.send_message(sid, room, message) if (st) else await chat_controller.AnonChatController.send_anon_message(sid, room, message)
-            response = "I got the message: " + message + " and the response " + response
             await self.sio_server.emit(
                 event="response", data=response, namespace=self.namespace, room=room
             )
