@@ -30,8 +30,12 @@ def get_chats(user_id: str = Depends(AuthService.get_current_user_id), page_numb
 
 
 @router.get("/chats/{chat_id}", response_model=chat_schema.ChatResponse)
-def get_chat(chat_id: str, user_id: str = Depends(AuthService.get_current_user_id)):
+def get_chat(chat_id: str):
     return chat_controller.ChatController.get_chat(chat_id)
+
+@router.get("/chats-anon/{chat_id}", response_model=chat_schema.ChatResponse)
+def get_chat(chat_id: str):
+    return chat_controller.AnonChatController.get_chat(chat_id)
 
 
 @router.patch("/chats/{chat_id}", response_model=chat_schema.ChatResponse)

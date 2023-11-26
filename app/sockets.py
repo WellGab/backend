@@ -1,5 +1,5 @@
+from fastapi import HTTPException
 import socketio
-import uuid
 from .controllers import chat as chat_controller
 from .services.auth import AuthService
 from .services.chat import ChatModelService, AnonChatModelService
@@ -31,7 +31,7 @@ class ChatNamespace(socketio.AsyncNamespace):
 
     async def on_join(self, sid, data):
         print("joining room")
-        auth = data.get("auth")
+        auth = data.get("auth", None)
         (id, st) = authenticate_socket_connection(auth)
         # if not st:
         #     self.enter_room(sid, sid)
@@ -68,7 +68,7 @@ class ChatNamespace(socketio.AsyncNamespace):
         print(f"{sid} left room: {room}")
 
     async def on_message(self, sid, data):
-        auth = data.get("auth")
+        auth = data.get("auth", None)
         (id, st) = authenticate_socket_connection(auth)
 
         room: str
@@ -90,8 +90,10 @@ class ChatNamespace(socketio.AsyncNamespace):
             await self.sio_server.emit(
                 event="response", data=response, namespace=self.namespace, room=room
             )
+        except HTTPException as e:
+            await self.send_error(sid, e.detail)
         except Exception as e:
-            await self.send_error(sid, str(e))
+            await self.send_error(sid, "Something went wrong")
 
     async def on_disconnect(self, sid):
         print(f"{sid}: disconnected")

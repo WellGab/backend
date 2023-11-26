@@ -3,6 +3,7 @@ from ..utils.setup import config
 from ..models.chat import Conversations, Chats, AnonConversations, AnonChats
 from ..models.user import Users
 import bson
+from typing import Any
 
 
 class ChatModelService:
@@ -154,31 +155,11 @@ class ChatService:
             api_key=config.OPEN_API_KEY,
         )
 
-        # convo = [
-        #     {"role": "system", "content": config.BASE_PROMPT},
-        # ]
+        convo = ChatService.__get_message(message, conversations)
 
-        # count: int = 0
-        # for c in conversations:
-        #     count += 1
-        #     if count == 1:
-        #         convo = convo + [{"role": "user", "content": config.BASE_PROMPT + c.message},
-        #                          {"role": "assistant", "content": c.reply},]
-        #     else:
-        #         convo = convo + [{"role": "user", "content": c.message},
-        #                          {"role": "assistant", "content": c.reply},]
-
-        # if len(conversations) < 0:
-        #     message = config.BASE_PROMPT + message
-
-        # convo = convo + [{"role": "user", "content": message},]
-        
-
-        prompt = config.BASE_PROMPT + message
         try:
             stream = await client.chat.completions.create(
-                # messages=convo,
-                messages=prompt,
+                messages=convo,
                 model="gpt-3.5-turbo",
                 temperature=0.5,
                 max_tokens=1024,
@@ -191,8 +172,21 @@ class ChatService:
             print("This is the response for: ", response)
             print("This is the response for: ", response.strip())
             return response.strip()
-        except Exception:
+        except Exception as e:
+            print(str(e))
             return "Pardon!"
+
+    @staticmethod    
+    def __get_message(message: str, conversations: list[Conversations]) -> list[dict[str, Any]]:
+        convo = [
+            {"role": "system", "content": config.BASE_PROMPT},
+        ]
+
+        for c in conversations:
+            convo = convo + [{"role": "user", "content": config.BASE_PROMPT + c.message},
+                                 {"role": "assistant", "content": c.reply},]
+
+        return convo + [{"role": "user", "content": config.BASE_PROMPT + message},]
 
     @staticmethod
     def get_user_conversations(uid: str, page_number: int = 1, page_size: int = 50) -> list[Conversations]:

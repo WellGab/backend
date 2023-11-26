@@ -201,22 +201,34 @@ class AnonChatController:
             )
         }
 
+    @staticmethod
+    def get_chat(chat_id: str) -> chat_schema.ChatResponse:
+        chat = chat_service.AnonChatModelService.get_anon_chat_by_id(chat_id)
+        if not chat:
+            raise HTTPException(status_code=400, detail="chat not found")
+
+        return {
+            "message": "Successful",
+            "status_code": str(status.HTTP_200_OK),
+            "data": chat
+        }
+
     @ staticmethod
     async def send_anon_message(sid: str, chat_id: str, message: str) -> str:
         chat = chat_service.AnonChatModelService.get_anon_chat_by_id(chat_id)
         if not chat:
             raise HTTPException(status_code=400, detail="chat not found")
-
+        
         if len(chat.conversations) == 10:
             raise HTTPException(status_code=403, detail="sign up to chat more")
-
+        
         response = await chat_service.ChatService.interact(message, chat.conversations)
 
         conversation = chat_models.AnonConversations(uid=bson.ObjectId(),
-                                                     anon_id=chat.uid,
-                                                     message=message,
-                                                     reply=response,
-                                                     created_at=datetime.now())
+                                                    anon_id=chat.uid,
+                                                    message=message,
+                                                    reply=response,
+                                                    created_at=datetime.now())
 
         chat = chat_service.AnonChatModelService.update_anon_chat(
             chat=chat, new_conversations=[conversation])
