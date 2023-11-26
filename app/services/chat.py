@@ -154,29 +154,30 @@ class ChatService:
             api_key=config.OPEN_API_KEY,
         )
 
-        convo = [
-            {"role": "system", "content": config.BASE_PROMPT},
-        ]
+        # convo = [
+        #     {"role": "system", "content": config.BASE_PROMPT},
+        # ]
 
-        count: int = 0
-        for c in conversations:
-            count += 1
-            if count == 1:
-                convo = convo + [{"role": "user", "content": config.BASE_PROMPT + c.message},
-                                 {"role": "assistant", "content": c.reply},]
-            else:
-                convo = convo + [{"role": "user", "content": c.message},
-                                 {"role": "assistant", "content": c.reply},]
+        # count: int = 0
+        # for c in conversations:
+        #     count += 1
+        #     if count == 1:
+        #         convo = convo + [{"role": "user", "content": config.BASE_PROMPT + c.message},
+        #                          {"role": "assistant", "content": c.reply},]
+        #     else:
+        #         convo = convo + [{"role": "user", "content": c.message},
+        #                          {"role": "assistant", "content": c.reply},]
 
-        if len(conversations) < 0:
-            message = config.BASE_PROMPT + message
+        # if len(conversations) < 0:
+        #     message = config.BASE_PROMPT + message
 
-        convo = convo + [{"role": "user", "content": message},]
+        # convo = convo + [{"role": "user", "content": message},]
 
-        # prompt = config.BASE_PROMPT + message
+        prompt = config.BASE_PROMPT + message
         try:
             stream = await client.chat.completions.create(
-                messages=convo,
+                # messages=convo,
+                messages=prompt,
                 model="gpt-3.5-turbo",
                 temperature=0.5,
                 max_tokens=1024,
