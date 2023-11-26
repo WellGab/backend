@@ -70,3 +70,14 @@ async def send_message(
         chat_id, body.message
     )
     return response
+
+
+@router.post("/chats/{chat_id}/messages-anon", response_model=chat_schema.ReplyResponse)
+async def send_message(
+    body: chat_schema.SendMessageSchema,
+    chat_id: str,
+):
+    response = await chat_controller.AnonChatController.send_message_api(
+        chat_id, body.message
+    )
+    return response

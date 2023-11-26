@@ -261,3 +261,12 @@ class AnonChatController:
             chat=chat, new_conversations=[conversation]
         )
         return response
+
+    @classmethod
+    async def send_message_api(cls, room, message):
+        response = await cls.send_anon_message("", room, message)
+        return {
+            "message": "Received",
+            "status_code": str(status.HTTP_200_OK),
+            "data": response,
+        }
