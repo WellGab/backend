@@ -72,7 +72,7 @@ class ChatModelService:
 
     @staticmethod
     def get_anon_chat_by_id(id: str) -> AnonChats:
-        chat = Chats.objects(id=bson.ObjectId(id)).first()
+        chat = AnonChats.objects(id=bson.ObjectId(id)).first()
         return chat
 
     @staticmethod
