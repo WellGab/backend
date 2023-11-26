@@ -12,13 +12,14 @@ class ChatController:
     """Chats Controller."""
 
     @staticmethod
-    def create_chat(user_id, req_data: chat_schema.CreateChatSchema) -> chat_schema.CreateChatResponse:
+    def create_chat(
+        user_id, req_data: chat_schema.CreateChatSchema
+    ) -> chat_schema.CreateChatResponse:
         user = user_service.UserService.get_user_by_id(user_id)
         if not user:
             raise HTTPException(status_code=400, detail="user not found")
 
-        chatTuple = chat_service.ChatModelService.create_chat(
-            user, req_data.topic)
+        chatTuple = chat_service.ChatModelService.create_chat(user, req_data.topic)
         id = chatTuple[0]
         topic = chatTuple[1]
 
@@ -29,24 +30,28 @@ class ChatController:
             "message": "Successful",
             "status_code": str(status.HTTP_200_OK),
             "data": chat_schema.CreateChatResponseData(
-                **{"id": id,
-                   "topic": topic,
-                   },
-            )
+                **{
+                    "id": id,
+                    "topic": topic,
+                },
+            ),
         }
 
     @staticmethod
-    def get_chats(user_id: str, page_number: int, page_size: int) -> chat_schema.ChatResponse:
+    def get_chats(
+        user_id: str, page_number: int, page_size: int
+    ) -> chat_schema.ChatResponse:
         user = user_service.UserService.get_user_by_id(user_id)
         if not user:
             raise HTTPException(status_code=400, detail="user not found")
         chats = chat_service.ChatModelService.get_chats_by_user(
-            user, page_number, page_size)
+            user, page_number, page_size
+        )
 
         return {
             "message": "Successful",
             "status_code": str(status.HTTP_200_OK),
-            "data": chats
+            "data": chats,
         }
 
     @staticmethod
@@ -58,11 +63,13 @@ class ChatController:
         return {
             "message": "Successful",
             "status_code": str(status.HTTP_200_OK),
-            "data": chat
+            "data": chat,
         }
 
     @staticmethod
-    def update_chat(user_id: str, chat_id: str, req: chat_schema.UpdateChatSchema) -> chat_schema.ChatResponse:
+    def update_chat(
+        user_id: str, chat_id: str, req: chat_schema.UpdateChatSchema
+    ) -> chat_schema.ChatResponse:
         user = user_service.UserService.get_user_by_id(user_id)
         if not user:
             raise HTTPException(status_code=400, detail="user not found")
@@ -72,25 +79,25 @@ class ChatController:
             raise HTTPException(status_code=400, detail="chat not found")
 
         if user.id != chat.user.id:
-            raise HTTPException(
-                status_code=403, detail="not authorized to update chat")
+            raise HTTPException(status_code=403, detail="not authorized to update chat")
 
         conversations: list[chat_models.Conversations] = []
 
         for conv in req.conversations:
-            conversation = chat_models.Conversations(uid=bson.ObjectId(),
-                                                     user=user,
-                                                     message=conv.message,
-                                                     reply=conv.reply,
-                                                     created_at=datetime.now())
+            conversation = chat_models.Conversations(
+                uid=bson.ObjectId(),
+                user=user,
+                message=conv.message,
+                reply=conv.reply,
+                created_at=datetime.now(),
+            )
             conversations.append(conversation)
 
-        chat = chat_service.ChatModelService.update_chat(
-            chat, req.topic, conversations)
+        chat = chat_service.ChatModelService.update_chat(chat, req.topic, conversations)
         return {
             "message": "Successful",
             "status_code": str(status.HTTP_200_OK),
-            "data": chat
+            "data": chat,
         }
 
     @staticmethod
@@ -104,19 +111,17 @@ class ChatController:
             raise HTTPException(status_code=400, detail="chat not found")
 
         if user.id != chat.user.id:
-            raise HTTPException(
-                status_code=403, detail="not authorized to delete chat")
+            raise HTTPException(status_code=403, detail="not authorized to delete chat")
 
         chat = chat_service.ChatModelService.delete_chat(chat)
         if not chat:
-            raise HTTPException(
-                status_code=500, detail="error occured deleting chat")
+            raise HTTPException(status_code=500, detail="error occured deleting chat")
         return {
             "message": "Successful",
             "status_code": str(status.HTTP_200_OK),
         }
 
-    @ staticmethod
+    @staticmethod
     async def send_message(sid: str, chat_id: str, message: str) -> str:
         chat = chat_service.ChatModelService.get_chat_by_id(chat_id)
         if not chat:
@@ -127,34 +132,39 @@ class ChatController:
         if topic == "" or ("new" in topic.lower() and "chat" in topic.lower()):
             topic = await chat_service.ChatService.get_topic(message)
 
-        conversation = chat_models.Conversations(uid=bson.ObjectId(),
-                                                 user=chat.user,
-                                                 message=message,
-                                                 reply=response,
-                                                 created_at=datetime.now())
+        conversation = chat_models.Conversations(
+            uid=bson.ObjectId(),
+            user=chat.user,
+            message=message,
+            reply=response,
+            created_at=datetime.now(),
+        )
 
-        chat = chat_service.ChatModelService.update_chat(
-            chat, topic, [conversation])
+        chat = chat_service.ChatModelService.update_chat(chat, topic, [conversation])
         return response
 
-    @ staticmethod
-    def get_user_conversations(uid: str, page_number: int, page_size: int) -> chat_schema.ConversationResponse:
+    @staticmethod
+    def get_user_conversations(
+        uid: str, page_number: int, page_size: int
+    ) -> chat_schema.ConversationResponse:
         if not uid:
             raise HTTPException(status_code=403, detail="Unauthorized user")
 
         count = chat_service.ChatService.get_user_conversations_count(uid)
         conversations = []
-        for conversation in chat_service.ChatService.get_user_conversations(uid, page_number, page_size):
+        for conversation in chat_service.ChatService.get_user_conversations(
+            uid, page_number, page_size
+        ):
             conversations.append(
                 chat_schema.Conversation(
-                    message=conversation.message, response=conversation.reply)
+                    message=conversation.message, response=conversation.reply
+                )
             )
 
         message = "conversations retrieved successful"
 
         prev = page_number - 1 if page_number > 1 else None
-        next = page_number + 1 if count - \
-            (page_number * page_size) > 0 else None
+        next = page_number + 1 if count - (page_number * page_size) > 0 else None
 
         if len(conversations) == 0:
             message = "no conversation available"
@@ -162,12 +172,23 @@ class ChatController:
         return {
             "message": message,
             "status_code": str(status.HTTP_200_OK),
-            "data": chat_schema.ConversationResponseData(**{
-                "conversations": conversations,
-                "count": count,
-                "prev": prev,
-                "next": next,
-            }),
+            "data": chat_schema.ConversationResponseData(
+                **{
+                    "conversations": conversations,
+                    "count": count,
+                    "prev": prev,
+                    "next": next,
+                }
+            ),
+        }
+
+    @classmethod
+    async def send_message_api(cls, room, message):
+        response = await cls.send_message("", room, message)
+        return {
+            "message": "Received",
+            "status_code": str(status.HTTP_200_OK),
+            "data": response,
         }
 
 
@@ -175,16 +196,19 @@ class AnonChatController:
     """Chats Controller."""
 
     @staticmethod
-    def create_anon_chat(req_data: chat_schema.CreateAnonChatSchema) -> chat_schema.CreateChatResponse:
+    def create_anon_chat(
+        req_data: chat_schema.CreateAnonChatSchema,
+    ) -> chat_schema.CreateChatResponse:
         chat_count = chat_service.AnonChatModelService.get_anon_user_chats_count(
-            req_data.uid)
+            req_data.uid
+        )
 
         if chat_count > 0:
-            raise HTTPException(
-                status_code=403, detail="sign up to create more chats")
+            raise HTTPException(status_code=403, detail="sign up to create more chats")
 
         chatTuple = chat_service.AnonChatModelService.create_anon_chat(
-            req_data.uid, req_data.topic)
+            req_data.uid, req_data.topic
+        )
         id = chatTuple[0]
         topic = chatTuple[1]
 
@@ -195,10 +219,11 @@ class AnonChatController:
             "message": "Successful",
             "status_code": str(status.HTTP_200_OK),
             "data": chat_schema.CreateChatResponseData(
-                **{"id": id,
-                   "topic": topic,
-                   },
-            )
+                **{
+                    "id": id,
+                    "topic": topic,
+                },
+            ),
         }
 
     @staticmethod
@@ -210,26 +235,29 @@ class AnonChatController:
         return {
             "message": "Successful",
             "status_code": str(status.HTTP_200_OK),
-            "data": chat
+            "data": chat,
         }
 
-    @ staticmethod
+    @staticmethod
     async def send_anon_message(sid: str, chat_id: str, message: str) -> str:
         chat = chat_service.AnonChatModelService.get_anon_chat_by_id(chat_id)
         if not chat:
             raise HTTPException(status_code=400, detail="chat not found")
-        
+
         if len(chat.conversations) == 10:
             raise HTTPException(status_code=403, detail="sign up to chat more")
-        
+
         response = await chat_service.ChatService.interact(message, chat.conversations)
 
-        conversation = chat_models.AnonConversations(uid=bson.ObjectId(),
-                                                    anon_id=chat.uid,
-                                                    message=message,
-                                                    reply=response,
-                                                    created_at=datetime.now())
+        conversation = chat_models.AnonConversations(
+            uid=bson.ObjectId(),
+            anon_id=chat.uid,
+            message=message,
+            reply=response,
+            created_at=datetime.now(),
+        )
 
         chat = chat_service.AnonChatModelService.update_anon_chat(
-            chat=chat, new_conversations=[conversation])
+            chat=chat, new_conversations=[conversation]
+        )
         return response

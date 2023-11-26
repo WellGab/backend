@@ -1,6 +1,7 @@
 from pydantic import BaseModel, validator
 from pydantic.networks import EmailStr
 from typing import List, Optional
+
 # from ..models import chat as chat_models
 from datetime import datetime
 from .user import UserSchema
@@ -114,3 +115,13 @@ class ChatsResponse(BaseModel):
     message: str
     status_code: int
     data: List[ChatsSchema]
+
+
+class ReplyResponse(BaseModel):
+    message: str
+    status_code: int
+    data: str
+
+
+class SendMessageSchema(BaseModel):
+    message: str
