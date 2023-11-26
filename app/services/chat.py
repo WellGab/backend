@@ -186,7 +186,7 @@ class ChatService:
                 presence_penalty=0,
             )
             response = stream.choices[0].message.content
-            print("This is the response for: ", convo)
+            # print("This is the response for: ", convo)
             print("This is the response for: ", response)
             print("This is the response for: ", response.strip())
             return response.strip()
