@@ -1,3 +1,4 @@
+from .services.mail import MailService
 from app.version import __version__
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

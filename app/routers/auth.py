@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from ..schemas import auth as auth_schema, user as user_schema, settings as setting_schema
+from ..schemas import (auth as auth_schema,
+                       user as user_schema, settings as setting_schema, password as password_schema)
 from ..controllers import auth as auth_controller
 from ..utils.setup import config
 from ..services.auth import AuthService
@@ -52,3 +53,18 @@ def update_settings(user_id: str = Depends(AuthService.get_current_user_id)):
 @router.delete("/user/delete", response_model=user_schema.DeleteUserResponse)
 def delete_user(data: user_schema.DeleteUserSchema, user_id: str = Depends(AuthService.get_current_user_id)):
     return auth_controller.AuthController.delete_user(data, user_id)
+
+
+@router.post("/user/password/request-reset", response_model=password_schema.RequestPasswordResetResponse)
+def request_password_reset(data: password_schema.RequestPasswordResetSchema):
+    return auth_controller.AuthController.request_password_reset(data)
+
+
+@router.post("/user/validate-token", response_model=password_schema.ValidateTokenResponse)
+def validate_token(data: password_schema.ValidateTokenSchema):
+    return auth_controller.AuthController.validate_token(data)
+
+
+@router.post("/user/password/reset", response_model=password_schema.ResetPasswordResponse)
+def reset_password(data: password_schema.ResetPasswordSchema):
+    return auth_controller.AuthController.reset_password(data)
