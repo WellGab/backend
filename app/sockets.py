@@ -2,7 +2,7 @@ import socketio
 import uuid
 from .controllers import chat as chat_controller
 from .services.auth import AuthService
-from .services.chat import ChatModelService
+from .services.chat import ChatModelService, AnonChatModelService
 from .utils.setup import token as tk
 
 
@@ -45,7 +45,8 @@ class ChatNamespace(socketio.AsyncNamespace):
             await self.send_error(sid, "room not provided")
             return
 
-        chat = ChatModelService.get_chat_by_id(room) if st else ChatModelService.get_anon_chat_by_id(room)
+        chat = ChatModelService.get_chat_by_id(
+            room) if st else AnonChatModelService.get_anon_chat_by_id(room)
         if not chat:
             self.enter_room(sid, sid)
             await self.send_error(sid, "invalid chat")
@@ -85,13 +86,13 @@ class ChatNamespace(socketio.AsyncNamespace):
             pass
 
         try:
-            response = await chat_controller.ChatController.send_message(sid, room, message) if(st) else await chat_controller.ChatController.send_anon_message(sid, room, message)
+            response = await chat_controller.ChatController.send_message(sid, room, message) if (st) else await chat_controller.AnonChatController.send_anon_message(sid, room, message)
             response = "I got the message: " + message + " and the response " + response
             await self.sio_server.emit(
                 event="response", data=response, namespace=self.namespace, room=room
             )
         except Exception as e:
-            await self.send_error(sid, str(e))    
+            await self.send_error(sid, str(e))
 
     async def on_disconnect(self, sid):
         print(f"{sid}: disconnected")

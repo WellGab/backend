@@ -36,3 +36,8 @@ def social_auth(user_data: auth_schema.SocialAuthSchema):
 @router.post("/subscribe", response_model=auth_schema.SubscribeResponse)
 def subscribe(sub_data: auth_schema.SubscribeSchema):
     return auth_controller.AuthController.subscribe(sub_data)
+
+
+# @router.delete("/user/delete", response_model=auth_schema.SubscribeResponse)
+# def delete_user(sub_data: auth_schema.SubscribeSchema, user_id: str = Depends(AuthService.get_current_user_id)):
+#     return auth_controller.AuthController.subscribe(sub_data)
