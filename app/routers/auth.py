@@ -40,13 +40,13 @@ def subscribe(sub_data: auth_schema.SubscribeSchema):
     return auth_controller.AuthController.subscribe(sub_data)
 
 
-@router.get("/user/setting", response_model=setting_schema.UpdateSettingsResponse)
+@router.patch("/user/setting", response_model=setting_schema.UpdateSettingsResponse)
 def update_settings(data: setting_schema.SettingsSchema, user_id: str = Depends(AuthService.get_current_user_id)):
     return auth_controller.AuthController.update_settings(data, user_id)
 
 
-@router.patch("/user/setting", response_model=setting_schema.GetSettingsResponse)
-def update_settings(user_id: str = Depends(AuthService.get_current_user_id)):
+@router.get("/user/setting", response_model=setting_schema.GetSettingsResponse)
+def get_settings(user_id: str = Depends(AuthService.get_current_user_id)):
     return auth_controller.AuthController.get_settings(user_id)
 
 

@@ -101,7 +101,7 @@ class UpdateChatConversationSchema(BaseModel):
 
 class UpdateChatSchema(BaseModel):
     topic: str
-    conversations: List[UpdateChatConversationSchema]
+    conversations: List[UpdateChatConversationSchema] = []
 
 
 class ChatResponse(BaseModel):
