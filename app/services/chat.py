@@ -13,28 +13,9 @@ class ChatModelService:
             user=user
         ).save()
         return (str(chat.id), chat.topic)
-    
-    def create_anon_chat(uid: str, topic: str) -> tuple[str, str]:
-        chat:  AnonChats = AnonChats(
-            topic=topic,
-            uid=uid
-        ).save()
-        return (str(chat.id), chat.topic)
 
     @staticmethod
     def update_chat(chat: Chats, new_topic: str = "", new_conversations: list[Conversations] = []) -> Chats:
-
-        if new_topic != "":
-            chat.topic = new_topic
-
-        if len(new_conversations) > 0:
-            chat.conversations.extend(new_conversations)
-
-        chat.save()
-        return chat
-
-    @staticmethod
-    def update_anon_chat(chat: AnonChats, new_topic: str = "", new_conversations: list[AnonConversations] = []) -> AnonChats:
 
         if new_topic != "":
             chat.topic = new_topic
@@ -56,22 +37,7 @@ class ChatModelService:
             return False
 
     @staticmethod
-    def delete_anon_chat(chat: AnonChats) -> bool:
-        try:
-            chat.delete()
-            return True
-        except Exception as e:
-            # Handle specific exceptions if needed
-            print(f"An error occurred while deleting the chat: {e}")
-            return False
-
-    @staticmethod
     def get_chat_by_id(id: str) -> Chats:
-        chat = Chats.objects(id=bson.ObjectId(id)).first()
-        return chat
-
-    @staticmethod
-    def get_anon_chat_by_id(id: str) -> AnonChats:
         chat = Chats.objects(id=bson.ObjectId(id)).first()
         return chat
 
@@ -83,6 +49,43 @@ class ChatModelService:
     @staticmethod
     def get_user_chats_count(user: Users) -> int:
         return Chats.objects(user=user).count()
+
+
+class AnonChatModelService:
+    @staticmethod
+    def create_anon_chat(uid: str, topic: str) -> tuple[str, str]:
+        chat:  AnonChats = AnonChats(
+            topic=topic,
+            uid=uid
+        ).save()
+        return (str(chat.id), chat.topic)
+
+    @staticmethod
+    def update_anon_chat(chat: AnonChats, new_topic: str = "", new_conversations: list[AnonConversations] = []) -> AnonChats:
+
+        if new_topic != "":
+            chat.topic = new_topic
+
+        if len(new_conversations) > 0:
+            chat.conversations.extend(new_conversations)
+
+        chat.save()
+        return chat
+
+    @staticmethod
+    def delete_anon_chat(chat: AnonChats) -> bool:
+        try:
+            chat.delete()
+            return True
+        except Exception as e:
+            # Handle specific exceptions if needed
+            print(f"An error occurred while deleting the chat: {e}")
+            return False
+
+    @staticmethod
+    def get_anon_chat_by_id(id: str) -> AnonChats:
+        chat = Chats.objects(id=bson.ObjectId(id)).first()
+        return chat
 
     @staticmethod
     def get_anon_user_chats_count(uid: str) -> int:

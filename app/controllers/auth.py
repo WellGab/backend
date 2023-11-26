@@ -1,9 +1,11 @@
 from fastapi import status, HTTPException
-from ..schemas import auth as auth_schema
+from ..schemas import (auth as auth_schema,
+                       user as user_schema, settings as settings_schema)
 from ..services import (
     auth as auth_service,
     user as user_service,
     subscribe as subscriber_service,
+    settings as setting_service
 )
 from ..models.user import (
     Users,
@@ -12,6 +14,7 @@ from ..models.user import (
     AUTH_CHANNEL_APPLE,
     AUTH_CHANNEL_MICROSOFT,
 )
+from ..models import settings as settings_models
 from ..utils.setup import config
 
 
@@ -22,9 +25,11 @@ class AuthController:
     def sign_up(user_data: auth_schema.SignUpSchema) -> auth_schema.AuthResponse:
         """Add user with hashed password to database."""
         # Check if the email already exists
-        user_exists: bool = user_service.UserService.user_exists(user_data.email)
+        user_exists: bool = user_service.UserService.user_exists(
+            user_data.email)
         if user_exists:
-            raise HTTPException(status_code=400, detail="Email already registered")
+            raise HTTPException(
+                status_code=400, detail="Email already registered")
 
         # Create user document
         new_user = auth_service.AuthService.create_user(
@@ -35,6 +40,14 @@ class AuthController:
 
         if not new_user:
             raise HTTPException(status_code=400, detail="Couldn't create user")
+
+        setting_service.SettingsService.create_or_update_setting(
+            user=new_user,
+            data=settings_schema.SettingsSchema(**{
+                "ninety_days_chat_limit": False,
+                "text_size": settings_models.SizeEnum.MEDIUM,
+                "display": settings_models.DisplayEnum.LIGHT,
+            }))
 
         return {
             "message": "sign up successful",
@@ -51,7 +64,8 @@ class AuthController:
             raise HTTPException(status_code=400, detail="User does not exist")
 
         if user.auth_channel != AUTH_CHANNEL_DEFAULT:
-            raise HTTPException(status_code=400, detail="Sign in with social auth")
+            raise HTTPException(
+                status_code=400, detail="Sign in with social auth")
 
         # Login user
         id = str(user.id)
@@ -60,7 +74,8 @@ class AuthController:
         )
 
         if not user:
-            raise HTTPException(status_code=400, detail="Couldn't not log in user")
+            raise HTTPException(
+                status_code=400, detail="Couldn't not log in user")
 
         return {
             "message": "login successful",
@@ -77,7 +92,8 @@ class AuthController:
             raise HTTPException(status_code=400, detail="User does not exist")
 
         if user.auth_channel != AUTH_CHANNEL_DEFAULT:
-            raise HTTPException(status_code=400, detail="Sign in with social auth")
+            raise HTTPException(
+                status_code=400, detail="Sign in with social auth")
 
         # Login user
         id = str(user.id)
@@ -86,7 +102,8 @@ class AuthController:
         )
 
         if not user:
-            raise HTTPException(status_code=400, detail="Couldn't not log in user")
+            raise HTTPException(
+                status_code=400, detail="Couldn't not log in user")
 
         data = auth_schema.AuthResponseData(**user)
 
@@ -136,7 +153,8 @@ class AuthController:
         elif "windows" in sub:
             auth_channel = AUTH_CHANNEL_MICROSOFT
         else:
-            raise HTTPException(status_code=400, detail="Invalid auth subscriber")
+            raise HTTPException(
+                status_code=400, detail="Invalid auth subscriber")
 
         password = f"{auth_channel}.{email}|wellgab2024"
 
@@ -148,7 +166,8 @@ class AuthController:
             )
 
             if not new_user:
-                raise HTTPException(status_code=400, detail="Couldn't create user")
+                raise HTTPException(
+                    status_code=400, detail="Couldn't create user")
 
             return {
                 "message": "sign up successful",
@@ -169,7 +188,8 @@ class AuthController:
         )
 
         if not user:
-            raise HTTPException(status_code=400, detail="Couldn't not log in user")
+            raise HTTPException(
+                status_code=400, detail="Couldn't not log in user")
 
         return {
             "message": "login successful",
@@ -201,4 +221,73 @@ class AuthController:
         return {
             "message": "Successfully Subscribed",
             "status_code": str(status.HTTP_200_OK),
+        }
+
+    @staticmethod
+    def delete_user(
+        data: user_schema.DeleteUserSchema,
+        user_id: str
+    ) -> auth_schema.SubscribeResponse:
+        user = user_service.UserService.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=400, detail="user not found")
+
+        if not auth_service.HashingMixin.verify(user.password, data.password):
+            return HTTPException(status_code=400, detail="incorrect password")
+
+        is_deleted = user_service.UserService.delete_user(user)
+        if not is_deleted:
+            raise HTTPException(status_code=400, detail="deleting user failed")
+
+        return {
+            "message": "Successfully deleted account",
+            "status_code": str(status.HTTP_200_OK),
+        }
+
+    @staticmethod
+    def update_settings(
+        data: settings_schema.SettingsSchema,
+        user_id: str
+    ) -> settings_schema.UpdateSettingsResponse:
+        user = user_service.UserService.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=400, detail="user not found")
+
+        setting = setting_service.SettingsService.create_or_update_setting(
+            user, data)
+
+        if not setting:
+            raise HTTPException(
+                status_code=400, detail="setting update failed")
+
+        return {
+            "message": "Successfully updated settings",
+            "status_code": str(status.HTTP_200_OK),
+        }
+
+    @staticmethod
+    def get_settings(
+        user_id: str
+    ) -> settings_schema.UpdateSettingsResponse:
+        user = user_service.UserService.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=400, detail="user not found")
+
+        setting = setting_service.SettingsService.get_setting_by_user(user)
+        if not setting:
+            setting = setting_service.SettingsService.create_or_update_setting(
+                user, settings_schema.SettingsSchema(**{
+                    "ninety_days_chat_limit": False,
+                    "text_size": settings_models.SizeEnum.MEDIUM,
+                    "display": settings_models.DisplayEnum.LIGHT,
+                }))
+
+        if not setting:
+            raise HTTPException(
+                status_code=400, detail="setting not found")
+
+        return {
+            "message": "Successful",
+            "status_code": str(status.HTTP_200_OK),
+            "data": setting
         }

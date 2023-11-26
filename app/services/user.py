@@ -17,3 +17,11 @@ class UserService:
     def get_user_by_id(id: str) -> Users:
         user = Users.objects(id=bson.ObjectId(id)).first()
         return user
+
+    @staticmethod
+    def delete_user(user: Users) -> bool:
+        try:
+            user.delete()
+            return True
+        except Exception:
+            return False
