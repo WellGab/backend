@@ -1,9 +1,11 @@
 from fastapi import status, HTTPException
-from ..schemas import auth as auth_schema, user as user_schema
+from ..schemas import (auth as auth_schema,
+                       user as user_schema, settings as settings_schema)
 from ..services import (
     auth as auth_service,
     user as user_service,
     subscribe as subscriber_service,
+    settings as setting_service
 )
 from ..models.user import (
     Users,
@@ -12,6 +14,7 @@ from ..models.user import (
     AUTH_CHANNEL_APPLE,
     AUTH_CHANNEL_MICROSOFT,
 )
+from ..models import settings as settings_models
 from ..utils.setup import config
 
 
@@ -37,6 +40,14 @@ class AuthController:
 
         if not new_user:
             raise HTTPException(status_code=400, detail="Couldn't create user")
+
+        setting_service.SettingsService.create_or_update_setting(
+            user=new_user,
+            data=settings_schema.SettingsSchema(**{
+                "ninety_days_chat_limit": False,
+                "text_size": settings_models.SizeEnum.MEDIUM,
+                "display": settings_models.DisplayEnum.LIGHT,
+            }))
 
         return {
             "message": "sign up successful",
@@ -231,4 +242,52 @@ class AuthController:
         return {
             "message": "Successfully deleted account",
             "status_code": str(status.HTTP_200_OK),
+        }
+
+    @staticmethod
+    def update_settings(
+        data: settings_schema.SettingsSchema,
+        user_id: str
+    ) -> settings_schema.UpdateSettingsResponse:
+        user = user_service.UserService.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=400, detail="user not found")
+
+        setting = setting_service.SettingsService.create_or_update_setting(
+            user, data)
+
+        if not setting:
+            raise HTTPException(
+                status_code=400, detail="setting update failed")
+
+        return {
+            "message": "Successfully updated settings",
+            "status_code": str(status.HTTP_200_OK),
+        }
+
+    @staticmethod
+    def get_settings(
+        user_id: str
+    ) -> settings_schema.UpdateSettingsResponse:
+        user = user_service.UserService.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=400, detail="user not found")
+
+        setting = setting_service.SettingsService.get_setting_by_user(user)
+        if not setting:
+            setting = setting_service.SettingsService.create_or_update_setting(
+                user, settings_schema.SettingsSchema(**{
+                    "ninety_days_chat_limit": False,
+                    "text_size": settings_models.SizeEnum.MEDIUM,
+                    "display": settings_models.DisplayEnum.LIGHT,
+                }))
+
+        if not setting:
+            raise HTTPException(
+                status_code=400, detail="setting not found")
+
+        return {
+            "message": "Successful",
+            "status_code": str(status.HTTP_200_OK),
+            "data": setting
         }

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from ..schemas import auth as auth_schema, user as user_schema
+from ..schemas import auth as auth_schema, user as user_schema, settings as setting_schema
 from ..controllers import auth as auth_controller
 from ..utils.setup import config
 from ..services.auth import AuthService
@@ -37,6 +37,16 @@ def social_auth(user_data: auth_schema.SocialAuthSchema):
 @router.post("/subscribe", response_model=auth_schema.SubscribeResponse)
 def subscribe(sub_data: auth_schema.SubscribeSchema):
     return auth_controller.AuthController.subscribe(sub_data)
+
+
+@router.get("/user/setting", response_model=setting_schema.UpdateSettingsResponse)
+def update_settings(data: setting_schema.SettingsSchema, user_id: str = Depends(AuthService.get_current_user_id)):
+    return auth_controller.AuthController.update_settings(data, user_id)
+
+
+@router.patch("/user/setting", response_model=setting_schema.GetSettingsResponse)
+def update_settings(user_id: str = Depends(AuthService.get_current_user_id)):
+    return auth_controller.AuthController.get_settings(user_id)
 
 
 @router.delete("/user/delete", response_model=user_schema.DeleteUserResponse)
