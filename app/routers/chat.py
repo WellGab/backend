@@ -18,9 +18,10 @@ def create_chat(req_data: chat_schema.CreateChatSchema, user_id: str = Depends(A
     print("User id: ", user_id)
     return chat_controller.ChatController.create_chat(user_id, req_data)
 
+
 @router.post("/chats-anon", response_model=chat_schema.CreateChatResponse)
 def create_anon_chat(req_data: chat_schema.CreateAnonChatSchema):
-    return chat_controller.ChatController.create_anon_chat(req_data)
+    return chat_controller.AnonChatController.create_anon_chat(req_data)
 
 
 @router.get("/chats", response_model=chat_schema.ChatsResponse)
