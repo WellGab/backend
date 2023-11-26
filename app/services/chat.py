@@ -9,15 +9,13 @@ from typing import Any
 class ChatModelService:
     @staticmethod
     def create_chat(user: Users, topic: str) -> tuple[str, str]:
-        chat:  Chats = Chats(
-            topic=topic,
-            user=user
-        ).save()
+        chat: Chats = Chats(topic=topic, user=user).save()
         return (str(chat.id), chat.topic)
 
     @staticmethod
-    def update_chat(chat: Chats, new_topic: str = "", new_conversations: list[Conversations] = []) -> Chats:
-
+    def update_chat(
+        chat: Chats, new_topic: str = "", new_conversations: list[Conversations] = []
+    ) -> Chats:
         if new_topic != "":
             chat.topic = new_topic
 
@@ -43,9 +41,16 @@ class ChatModelService:
         return chat
 
     @staticmethod
-    def get_chats_by_user(user: Users, page_number: int = 1, page_size: int = 50) -> list[Chats]:
+    def get_chats_by_user(
+        user: Users, page_number: int = 1, page_size: int = 50
+    ) -> list[Chats]:
         offset = page_size * (page_number - 1) or 0
-        return Chats.objects(user=user).order_by('-created_at').limit(page_size).skip(offset)
+        return (
+            Chats.objects(user=user)
+            .order_by("-created_at")
+            .limit(page_size)
+            .skip(offset)
+        )
 
     @staticmethod
     def get_user_chats_count(user: Users) -> int:
@@ -55,15 +60,15 @@ class ChatModelService:
 class AnonChatModelService:
     @staticmethod
     def create_anon_chat(uid: str, topic: str) -> tuple[str, str]:
-        chat:  AnonChats = AnonChats(
-            topic=topic,
-            uid=uid
-        ).save()
+        chat: AnonChats = AnonChats(topic=topic, uid=uid).save()
         return (str(chat.id), chat.topic)
 
     @staticmethod
-    def update_anon_chat(chat: AnonChats, new_topic: str = "", new_conversations: list[AnonConversations] = []) -> AnonChats:
-
+    def update_anon_chat(
+        chat: AnonChats,
+        new_topic: str = "",
+        new_conversations: list[AnonConversations] = [],
+    ) -> AnonChats:
         if new_topic != "":
             chat.topic = new_topic
 
@@ -158,16 +163,26 @@ class ChatService:
         convo = ChatService.__get_one_message(message)
 
         try:
-            stream = await client.chat.completions.create(
-                messages=convo,
-                model="gpt-3.5-turbo",
+            # stream = await client.chat.completions.create(
+            #     messages=convo,
+            #     model="gpt-3.5-turbo-instruct",
+            #     temperature=0.5,
+            #     max_tokens=1024,
+            #     top_p=1,
+            #     frequency_penalty=0,
+            #     presence_penalty=0,
+            # )
+            stream = await client.completions.create(
+                prompt=convo,
+                model="gpt-3.5-turbo-instruct",
                 temperature=0.5,
                 max_tokens=1024,
                 top_p=1,
                 frequency_penalty=0,
                 presence_penalty=0,
             )
-            response = stream.choices[0].message.content
+
+            response = stream.choices[0].text
             # print("This is the response for: ", convo)
             print("This is the response for: ", response)
             print("This is the response for: ", response.strip())
@@ -177,28 +192,45 @@ class ChatService:
             return "Pardon!"
 
     @staticmethod
-    def __get_one_message(message: str) -> list[dict[str, Any]]:
+    def __get_one_message(message: str) -> str:
+        return config.BASE_PROMPT + message
+
+    @staticmethod
+    def __get_one_message_for_chat_completion(message: str) -> list[dict[str, Any]]:
         return [
             {"role": "system", "content": config.BASE_PROMPT},
-            {"role": "user", "content": config.BASE_PROMPT + message}
+            {"role": "user", "content": config.BASE_PROMPT + message},
         ]
 
     @staticmethod
-    def __get_message(message: str, conversations: list[Conversations]) -> list[dict[str, Any]]:
+    def __get_message(
+        message: str, conversations: list[Conversations]
+    ) -> list[dict[str, Any]]:
         convo = [
             {"role": "system", "content": config.BASE_PROMPT},
         ]
 
         for c in conversations:
-            convo = convo + [{"role": "user", "content": config.BASE_PROMPT + c.message},
-                             {"role": "assistant", "content": c.reply},]
+            convo = convo + [
+                {"role": "user", "content": config.BASE_PROMPT + c.message},
+                {"role": "assistant", "content": c.reply},
+            ]
 
-        return convo + [{"role": "user", "content": config.BASE_PROMPT + message},]
+        return convo + [
+            {"role": "user", "content": config.BASE_PROMPT + message},
+        ]
 
     @staticmethod
-    def get_user_conversations(uid: str, page_number: int = 1, page_size: int = 50) -> list[Conversations]:
+    def get_user_conversations(
+        uid: str, page_number: int = 1, page_size: int = 50
+    ) -> list[Conversations]:
         offset = page_size * (page_number - 1) or 0
-        return Conversations.objects(uid=bson.ObjectId(uid)).order_by('-created_at').limit(page_size).skip(offset)
+        return (
+            Conversations.objects(uid=bson.ObjectId(uid))
+            .order_by("-created_at")
+            .limit(page_size)
+            .skip(offset)
+        )
 
     @staticmethod
     def get_user_conversations_count(uid: str) -> int:
@@ -206,5 +238,4 @@ class ChatService:
 
     @staticmethod
     def save_conversation(uid: str, message: str, response: str):
-        Conversations(uid=bson.ObjectId(uid), message=message,
-                      response=response).save()
+        Conversations(uid=bson.ObjectId(uid), message=message, response=response).save()
