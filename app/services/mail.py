@@ -27,13 +27,12 @@ class MailService:
         cls,
         subject,
         email,
-        name,
         template_context,
         template_name: str = "default_template.html",
     ):
         body = {
-            "sender": {"name": "WellGab", "email": "support@psami.com"},
-            "to": [{"email": email, "name": name}],
+            "sender": {"name": "WellGab", "email": "support@wellgab.com"},
+            "to": [{"email": email}],
             "subject": subject,
             "htmlContent": cls.get_html_string(template_context, template_name),
         }

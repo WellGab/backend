@@ -1,5 +1,6 @@
 from ..models.user import Users
 import bson
+from .auth import HashingMixin
 
 
 class UserService:
@@ -22,6 +23,16 @@ class UserService:
     def delete_user(user: Users) -> bool:
         try:
             user.delete()
+            return True
+        except Exception:
+            return False
+
+    @staticmethod
+    def update_password(user: Users, new_password: str) -> bool:
+        hashed_password = HashingMixin.hash(new_password)
+        user.password = hashed_password
+        try:
+            user.save()
             return True
         except Exception:
             return False

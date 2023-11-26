@@ -4,6 +4,7 @@ from .controllers import chat as chat_controller
 from .services.auth import AuthService
 from .services.chat import ChatModelService, AnonChatModelService
 from .utils.setup import token as tk
+from .utils.setup import config
 
 
 class ChatNamespace(socketio.AsyncNamespace):
@@ -45,8 +46,11 @@ class ChatNamespace(socketio.AsyncNamespace):
             await self.send_error(sid, "room not provided")
             return
 
-        chat = ChatModelService.get_chat_by_id(
-            room) if st else AnonChatModelService.get_anon_chat_by_id(room)
+        chat = (
+            ChatModelService.get_chat_by_id(room)
+            if st
+            else AnonChatModelService.get_anon_chat_by_id(room)
+        )
         if not chat:
             self.enter_room(sid, sid)
             await self.send_error(sid, "invalid chat")
@@ -86,7 +90,13 @@ class ChatNamespace(socketio.AsyncNamespace):
             pass
 
         try:
-            response = await chat_controller.ChatController.send_message(sid, room, message) if (st) else await chat_controller.AnonChatController.send_anon_message(sid, room, message)
+            response = (
+                await chat_controller.ChatController.send_message(sid, room, message)
+                if (st)
+                else await chat_controller.AnonChatController.send_anon_message(
+                    sid, room, message
+                )
+            )
             await self.sio_server.emit(
                 event="response", data=response, namespace=self.namespace, room=room
             )
@@ -126,9 +136,9 @@ def authenticate_socket_connection(auth) -> tuple[str, bool]:
 
 class ChatServer:
     def __init__(self, app, namespace=None):
+        mgr = socketio.AsyncRedisManager(config.REDIS_URL)
         sio_server = socketio.AsyncServer(
-            async_mode="asgi", cors_allowed_origins="*")
-        sio_server.register_namespace(
-            ChatNamespace(sio_server, namespace=namespace))
-        self.sio_app = socketio.ASGIApp(
-            socketio_server=sio_server, other_asgi_app=app)
+            async_mode="asgi", cors_allowed_origins="*", client_manager=mgr
+        )
+        sio_server.register_namespace(ChatNamespace(sio_server, namespace=namespace))
+        self.sio_app = socketio.ASGIApp(socketio_server=sio_server, other_asgi_app=app)
