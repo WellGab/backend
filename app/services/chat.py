@@ -172,6 +172,7 @@ class ChatService:
         #     message = config.BASE_PROMPT + message
 
         # convo = convo + [{"role": "user", "content": message},]
+        
 
         prompt = config.BASE_PROMPT + message
         try:
