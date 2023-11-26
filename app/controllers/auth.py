@@ -1,11 +1,13 @@
 from fastapi import status, HTTPException
 from ..schemas import (auth as auth_schema,
-                       user as user_schema, settings as settings_schema)
+                       user as user_schema, settings as settings_schema, password as password_schema)
 from ..services import (
     auth as auth_service,
     user as user_service,
     subscribe as subscriber_service,
-    settings as setting_service
+    settings as setting_service,
+    mail as mail_service,
+    validation_token as vtoken_service
 )
 from ..models.user import (
     Users,
@@ -14,6 +16,7 @@ from ..models.user import (
     AUTH_CHANNEL_APPLE,
     AUTH_CHANNEL_MICROSOFT,
 )
+from ..models.validation_token import ValidationToken, TokenTypeEnum
 from ..models import settings as settings_models
 from ..utils.setup import config
 
@@ -41,8 +44,9 @@ class AuthController:
         if not new_user:
             raise HTTPException(status_code=400, detail="Couldn't create user")
 
+        user = user_service.UserService.get_user_by_id(new_user["user_id"])
         setting_service.SettingsService.create_or_update_setting(
-            user=new_user,
+            user=user,
             data=settings_schema.SettingsSchema(**{
                 "ninety_days_chat_limit": False,
                 "text_size": settings_models.SizeEnum.MEDIUM,
@@ -290,4 +294,73 @@ class AuthController:
             "message": "Successful",
             "status_code": str(status.HTTP_200_OK),
             "data": setting
+        }
+
+    @staticmethod
+    def request_password_reset(
+        data: password_schema.RequestPasswordResetSchema
+    ) -> password_schema.RequestPasswordResetResponse:
+        user = user_service.UserService.get_user(data.email)
+        if not user:
+            raise HTTPException(status_code=400, detail="user not found")
+
+        token = vtoken_service.ValidationTokenService.create_token(
+            user, TokenTypeEnum.PASSWORDRESET)
+
+        sent = mail_service.MailService.send_mail(
+            "Password Reset", user.email, {"code": token.token}, "reset_password.html")
+
+        if not sent:
+            raise HTTPException(
+                status_code=400, detail="error sending password reset otp")
+        return {
+            "message": "Successful",
+            "status_code": str(status.HTTP_200_OK)
+        }
+
+    @staticmethod
+    def validate_token(
+        data: password_schema.ValidateTokenSchema
+    ) -> password_schema.ValidateTokenResponse:
+        user = user_service.UserService.get_user(data.email)
+        if not user:
+            raise HTTPException(status_code=400, detail="user not found")
+
+        token = vtoken_service.ValidationTokenService.get_token(
+            user, data.token)
+        if not token:
+            raise HTTPException(
+                status_code=400, detail="invalid token")
+
+        return {
+            "message": "token valid",
+            "status_code": str(status.HTTP_200_OK)
+        }
+
+    @staticmethod
+    def reset_password(
+        data: password_schema.ResetPasswordSchema
+    ) -> password_schema.ResetPasswordResponse:
+        user = user_service.UserService.get_user(data.email)
+        if not user:
+            raise HTTPException(status_code=400, detail="user not found")
+
+        token = vtoken_service.ValidationTokenService.get_token_with_type(
+            user, data.token, TokenTypeEnum.PASSWORDRESET)
+        if not token:
+            raise HTTPException(
+                status_code=400, detail="invalid token")
+
+        updated = user_service.UserService.update_password(
+            user, data.new_password)
+
+        if not updated:
+            raise HTTPException(
+                status_code=400, detail="error reseting password")
+
+        vtoken_service.ValidationTokenService.delete_token(token)
+
+        return {
+            "message": "password reset successful",
+            "status_code": str(status.HTTP_200_OK)
         }
