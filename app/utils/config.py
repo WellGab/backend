@@ -20,6 +20,8 @@ class Configuration:
         self.API_AUDIENCE = os.getenv("API_AUDIENCE")
         self.OPEN_API_KEY = os.getenv("OPEN_API_KEY")
         self.BASE_PROMPT = os.getenv("BASE_PROMPT")
+        self.SENDINBLUE_API_KEY = os.getenv("SENDINBLUE_API_KEY")
+        self.SENDINBLUE_API_URL = os.getenv("SENDINBLUE_API_URL")
 
     def _set_non_env_vars(self):
         self.ROOT_PATH = "/api/v1"
