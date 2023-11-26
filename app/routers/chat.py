@@ -73,7 +73,7 @@ async def send_message(
 
 
 @router.post("/chats/{chat_id}/messages-anon", response_model=chat_schema.ReplyResponse)
-async def send_message(
+async def send_message_anon(
     body: chat_schema.SendMessageSchema,
     chat_id: str,
 ):
