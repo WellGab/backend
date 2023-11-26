@@ -155,7 +155,7 @@ class ChatService:
             api_key=config.OPEN_API_KEY,
         )
 
-        convo = ChatService.__get_message(message, conversations)
+        convo = ChatService.__get_one_message(message)
 
         try:
             stream = await client.chat.completions.create(
@@ -176,7 +176,14 @@ class ChatService:
             print(str(e))
             return "Pardon!"
 
-    @staticmethod    
+    @staticmethod
+    def __get_one_message(message: str) -> list[dict[str, Any]]:
+        return [
+            {"role": "system", "content": config.BASE_PROMPT},
+            {"role": "user", "content": config.BASE_PROMPT + message}
+        ]
+
+    @staticmethod
     def __get_message(message: str, conversations: list[Conversations]) -> list[dict[str, Any]]:
         convo = [
             {"role": "system", "content": config.BASE_PROMPT},
@@ -184,7 +191,7 @@ class ChatService:
 
         for c in conversations:
             convo = convo + [{"role": "user", "content": config.BASE_PROMPT + c.message},
-                                 {"role": "assistant", "content": c.reply},]
+                             {"role": "assistant", "content": c.reply},]
 
         return convo + [{"role": "user", "content": config.BASE_PROMPT + message},]
 
