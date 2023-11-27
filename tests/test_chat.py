@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 import pytest
 
 from app.utils.setup import config as cg
+from app.models.chat import AnonChats
 from app.main import app
 from .conftest import TestConfig
 
@@ -118,6 +119,29 @@ def test_get_chat(test_user, valid_chat):
         assert schema["detail"] == "chat not found"
 
 
+@pytest.mark.parametrize("valid_chat", [
+    (True),
+    (False),
+])
+def test_get_anon_chat(valid_chat):
+    if (valid_chat):
+        chat_id = AnonChats.objects().first().id
+
+        response = client.get(f'{cg.ROOT_PATH}{cg.CHAT_URL}/chats-anon/{chat_id}')
+        schema = response.json()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert isinstance(schema["message"], str)
+        assert schema["message"] == "Successful"
+        assert isinstance(schema["data"], dict)
+    else:
+        response = client.get(f'{cg.ROOT_PATH}{cg.CHAT_URL}/chats-anon/6565089f2ed90d8e1d392b55')
+        schema = response.json()
+        
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert isinstance(schema["detail"], str)
+        assert schema["detail"] == "chat not found"
+
 
 @pytest.mark.parametrize("authorized, valid_chat", [
     (True, True),
@@ -206,7 +230,6 @@ def test_send_message(test_user, authorized):
 
     if (authorized):
         headers = {"Authorization": f'Bearer {test_user["token"]}'}
-        print("Test token: ", test_user)
             
         response = client.get(f'{cg.ROOT_PATH}{cg.CHAT_URL}/chats', headers=headers)
         schema = response.json()
@@ -226,3 +249,19 @@ def test_send_message(test_user, authorized):
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert isinstance(schema["detail"], str)
         assert schema["detail"] == "Not authenticated"
+
+
+def test_send__anon_message():
+    data = {
+        "message": "Hello"
+    }
+
+    chat_id = AnonChats.objects().first().id
+
+    response = client.post(f'{cg.ROOT_PATH}{cg.CHAT_URL}/chats/{chat_id}/messages-anon', json=data)
+    schema = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert isinstance(schema["message"], str)
+    assert schema["message"] == "Received"
+    assert isinstance(schema["data"], str)
