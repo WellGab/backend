@@ -1,22 +1,22 @@
 # WellGab - AI-Powered Symptom and Diagnosis Guidance
 
-WellGab is an AI-powered application designed to provide users with symptom analysis and guidance for potential health issues. This is the basck end api, it utilizes Opeanai chat apis for ai recommendations, FastApi a python web framework for the web server, Mongodb for data management, and Socketio for efficient chat functionality.
+WellGab is an AI-powered application designed to provide users with symptom analysis and guidance for potential health issues. This is the backend API, it utilizes Opeanai chat APIs for AI recommendations, FastApi a Python web framework for the web server, MongoDB for data management, and Socketio for efficient chat functionality.
 
 ## Features
 
-- **AI Symptom Analysis powered by OpeanAI:** WellGab leverages openai's advanced AI algorithms to analyze user-entered symptoms and provide potential health issue guidance.
+- **AI Symptom Analysis powered by OpeanAI:** WellGab leverages Openai's advanced AI algorithms to analyze user-entered symptoms and provide potential health issue guidance.
 
-- **FastApi:** Fastapi is a simple and efficient python web framework.
+- **FastApi:** Fastapi is a simple and efficient Python web framework.
 
-- **Efficient Data Management with Mongodb:** Data is the new oil and every user data is saved with their permission and can also be deleted if they want to, thanks to Mongodb.
+- **Efficient Data Management with Mongodb:** Data is the new oil and every user's data is saved with their permission and can also be deleted if they want to, thanks to Mongodb.
 
-- **Efficient Chatting with Socketio:** Socketio was used to implement websockets communications between users and the ai chatbot.
+- **Efficient Chatting with Socketio:** Socketio was used to implement web-socket communications between users and the AI chatbot.
 
-- **Decent Test Coverage with Pytest:** Pytest was used to achieve a 70% test coverage knowing the importance it is to maintain a stable with system. With the tests in place breaking changes can be easily be caught before pushing to production.
+- **Decent Test Coverage with Pytest:** Pytest was used to achieve a 70% test coverage knowing the importance it is to maintaining a stable system. With the tests in place breaking changes can be easily caught before pushing to production.
   
-- **CI/CD with Github Actions:** It is important to be able to ship features as fast as possible and also fix bugs very quickly that was why we used github actions to automate pushing our api to an ec2 instance on aws on git push
+- **CI/CD with GitHub Actions:** It is important to be able to ship features as fast as possible and also fix bugs very quickly that was why we used GitHub Actions to automate pushing our API to an EC2 instance on aws on git push
   
-- **Containerization with Docker:** The application was containerized using docker for easy deployment
+- **Containerization with Docker:** The application was containerized using Docker for easy deployment
 -   
 - **Cloud deployment on AWS EC2:** The application was deployed on an AWS EC2 instance for high availability  
 
@@ -30,7 +30,7 @@ WellGab is an AI-powered application designed to provide users with symptom anal
 ### Installation
 
 1. clone the repository:
-2. start virtual environment in project folder
+2. start the virtual environment in the project folder
 3. install dependencies
 4. create .env file from .env.example
 5. run app
@@ -46,15 +46,15 @@ gunicorn app.main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 
 ## Usage
 - open [http://127.0.0.1:8000/api/v1](http://127.0.0.1:8000/docs) with your browser to see the result.
-- wxplore the different endpoints available
+- explore the different endpoints available
 
 ## Technologies Used
 
 - Fastapi
-- Mongodb
+- MongoDB
 - OpenAI
 - Socketio
-- Github Actions
+- GitHub Actions
 - Pytest
 - Docker
 - AWS EC2
