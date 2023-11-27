@@ -237,10 +237,22 @@ class AuthController:
             raise HTTPException(status_code=400, detail="user not found")
 
         if not auth_service.HashingMixin.verify(user.password, data.password):
-            return HTTPException(status_code=400, detail="incorrect password")
+            raise HTTPException(status_code=400, detail="incorrect password")
+        
+        subscriber_exists: bool = subscriber_service.SubscribeService.subscriber_exists(user.email)
+        if subscriber_exists:
+            print("1")
+            is_unsubscribed = subscriber_service.SubscribeService.delete_subscriber(user.email)
+            if not is_unsubscribed:
+                print("2")
+                raise HTTPException(status_code=400, detail="deleting user failed")
 
         is_deleted = user_service.UserService.delete_user(user)
         if not is_deleted:
+            if subscriber_exists:
+                subscriber_service.SubscribeService.create_subscriber(
+                    email=user.email
+                )
             raise HTTPException(status_code=400, detail="deleting user failed")
 
         return {
