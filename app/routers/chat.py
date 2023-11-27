@@ -12,7 +12,6 @@ def create_chat(
     req_data: chat_schema.CreateChatSchema,
     user_id: str = Depends(AuthService.get_current_user_id),
 ):
-    print("User id: ", user_id)
     return chat_controller.ChatController.create_chat(user_id, req_data)
 
 

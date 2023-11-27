@@ -75,7 +75,7 @@ def test_login_incorrect_password(config: TestConfig):
     assert isinstance(schema["detail"], str)
     assert schema["detail"] == "Couldn't not log in user"
 
-def test_social_auth_invalid_token(config: TestConfig):
+def test_social_auth_invalid_token():
     data = {
         "token": "",
     }
@@ -253,7 +253,6 @@ def test_delete_user_incorrect_password(headers):
 ])
 def test_delete_user(config: TestConfig, headers, authorized):
     data = {
-        "email": config.username,
         "password": config.password,
     }
 
