@@ -6,11 +6,19 @@ WellGab is an AI-powered application designed to provide users with symptom anal
 
 - **AI Symptom Analysis powered by OpeanAI:** WellGab leverages openai's advanced AI algorithms to analyze user-entered symptoms and provide potential health issue guidance.
 
-- **FastApi:** State management is handled efficiently with Recoil, making it easy to manage and share the application's state across components.
+- **FastApi:** Fastapi is a simple and efficient python web framework.
 
-- **Efficient Data Management with Mongodb:** The UI is designed to be responsive and visually appealing, thanks to Tailwind CSS.
+- **Efficient Data Management with Mongodb:** Data is the new oil and every user data is saved with their permission and can also be deleted if they want to, thanks to Mongodb.
 
-- **Efficient Chatting with Socketio:** React Query is employed for data fetching, ensuring optimal performance and a smooth user experience.
+- **Efficient Chatting with Socketio:** Socketio was used to implement websockets communications between users and the ai chatbot.
+
+- **Decent Test Coverage with Pytest:** Pytest was used to achieve a 70% test coverage knowing the importance it is to maintain a stable with system. With the tests in place breaking changes can be easily be caught before pushing to production.
+  
+- **CI/CD with Github Actions:** It is important to be able to ship features as fast as possible and also fix bugs very quickly that was why we used github actions to automate pushing our api to an ec2 instance on aws on git push
+  
+- **Containerization with Docker:** The application was containerized using docker for easy deployment
+-   
+- **Cloud deployment on AWS EC2:** The application was deployed on an AWS EC2 instance for high availability  
 
 ## Getting Started
 
@@ -46,6 +54,10 @@ gunicorn app.main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 - Mongodb
 - OpenAI
 - Socketio
+- Github Actions
+- Pytest
+- Docker
+- AWS EC2
 
 ## Language
 [![Python Version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue.svg)](https://www.python.org/downloads/)
