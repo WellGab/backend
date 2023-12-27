@@ -160,32 +160,19 @@ class ChatService:
             api_key=config.OPEN_API_KEY,
         )
 
-        convo = ChatService.__get_one_message(message)
+        convo = ChatService.__get_message(message, conversations)
 
         try:
-            # stream = await client.chat.completions.create(
-            #     messages=convo,
-            #     model="gpt-3.5-turbo-instruct",
-            #     temperature=0.5,
-            #     max_tokens=1024,
-            #     top_p=1,
-            #     frequency_penalty=0,
-            #     presence_penalty=0,
-            # )
-            stream = await client.completions.create(
-                prompt=convo,
-                model="gpt-3.5-turbo-instruct",
+            stream = await client.chat.completions.create(
+                messages=convo,
+                model="gpt-3.5-turbo-1106",
                 temperature=0.5,
-                max_tokens=1024,
+                max_tokens=2048,
                 top_p=1,
                 frequency_penalty=0,
                 presence_penalty=0,
             )
-
-            response = stream.choices[0].text
-            # print("This is the response for: ", convo)
-            print("This is the response for: ", response)
-            print("This is the response for: ", response.strip())
+            response = stream.choices[0].message.content
             return response.strip()
         except Exception as e:
             print(str(e))
@@ -199,7 +186,7 @@ class ChatService:
     def __get_one_message_for_chat_completion(message: str) -> list[dict[str, Any]]:
         return [
             {"role": "system", "content": config.BASE_PROMPT},
-            {"role": "user", "content": config.BASE_PROMPT + message},
+            {"role": "user", "content": message},
         ]
 
     @staticmethod
@@ -210,14 +197,14 @@ class ChatService:
             {"role": "system", "content": config.BASE_PROMPT},
         ]
 
-        for c in conversations:
+        for c in conversations[:6]:
             convo = convo + [
-                {"role": "user", "content": config.BASE_PROMPT + c.message},
+                {"role": "user", "content": c.message},
                 {"role": "assistant", "content": c.reply},
             ]
 
         return convo + [
-            {"role": "user", "content": config.BASE_PROMPT + message},
+            {"role": "user", "content": message},
         ]
 
     @staticmethod
