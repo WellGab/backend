@@ -10,9 +10,20 @@ class SubscribeService:
 
     @staticmethod
     def create_subscriber(email: str) -> bool:
-
         subscriber: Subscribers = Subscribers(
             email=email
         ).save()
         id: str = str(subscriber.id)
         return subscriber.id != ""
+
+    @staticmethod
+    def delete_subscriber(email: str) -> bool:
+        try:
+            subscriber = Subscribers.objects(email=email).first()
+            if not subscriber:
+                return False
+            
+            subscriber.delete()
+            return True
+        except Exception:
+            return False

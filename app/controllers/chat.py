@@ -2,9 +2,7 @@ from fastapi import status, HTTPException
 from ..schemas import chat as chat_schema
 from ..models import chat as chat_models
 from ..services import chat as chat_service, user as user_service
-import json
 import bson
-import uuid
 from datetime import datetime
 
 
